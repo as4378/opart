@@ -13,7 +13,9 @@
 #   Check Package:             'Ctrl + Shift + E'
 #   Test Package:              'Ctrl + Shift + T'
 
-add <- function(x, y) {
-  .C(add, x, y, numeric(1))[[3]]
-}
+add <- structure(function(x, y) {
+  res <- .C(add, as.numeric(x), as.numeric(y), r = double(1),
+            PACKAGE="Opart")$r
+  res
+})
 

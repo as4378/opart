@@ -1,2 +1,0 @@
-useDynLib(Opart)
-exportPattern("^[[:alpha:]]+")
