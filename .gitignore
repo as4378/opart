@@ -1,2 +1,9 @@
 log.txt
 .Rproj.user
+*.dll
+.Rhistory
+*~
+*.o
+*.so
+auto
+_region_.tex
