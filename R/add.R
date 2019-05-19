@@ -14,8 +14,8 @@
 #   Test Package:              'Ctrl + Shift + T'
 
 add <- structure(function(x, y) {
-  r <- .C("add_interface", as.numeric(x), as.numeric(y), r = double(1),
+  result <- .C("add_interface", as.numeric(x), as.numeric(y), r = double(1),
             PACKAGE="Opart")$r
-  r
+  result
 }, ex=function(){})
 
