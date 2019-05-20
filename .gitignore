@@ -8,3 +8,4 @@ log.txt
 auto
 _region_.tex
 Opart.dll
+src/*.o
