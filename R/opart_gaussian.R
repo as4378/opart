@@ -25,4 +25,4 @@ opart_gaussian <- structure(function(n_data, data_ptr, penalty) {
   print(error)
   print(cost)
   print(ends)
-}, ex=function(){})
+})
