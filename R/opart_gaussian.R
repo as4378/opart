@@ -10,7 +10,7 @@
 #' opart_gaussian(3, c(1,2,3), 1)
 #' opart_gaussian(4, c(1,2,3,4), 1)
 
-
+#no need to pass number of data points
 opart_gaussian <- structure(function(n_data, data_ptr, penalty) {
   result <- .C("opart_gaussian_interface",
                as.integer(n_data),
