@@ -1,7 +1,6 @@
-#include <R.h>
-#include <Rinternals.h>
-#include <R_ext/Rdynload.h>
-#include "opart_gaussian.h"
+#include <R.h> //error
+#include <R_ext/Rdynload.h>//regestiring routines
+#include "opart_gaussian.h" // C code
 
 
 void opart_gaussian_interface
