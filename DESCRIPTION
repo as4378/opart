@@ -19,5 +19,6 @@ URL: https://github.com/as4378/opart
 BugReports: https://github.com/as4378/opart/issues
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr
