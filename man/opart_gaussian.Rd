@@ -6,17 +6,15 @@
 and a non-negative real-valued penalty,
 given the square loss (to minimize) / gaussian likelihood (to maximize)}
 \usage{
-opart_gaussian(n_data, data_ptr, penalty)
+opart_gaussian(data, penalty)
 }
 \arguments{
-\item{n_data}{A number indicating the number of data points}
+\item{data}{A list of numbers for which the changepoint model is to be computed}
 
-\item{data_ptr}{A list of numbers for which the changepoint model is to be computed}
-
-\item{penalty}{A non-negative real number indicating penalty}
+\item{penalty}{A non-negative real number indicating penalty parameter}
 }
 \value{
-A pointer to the optimal cost values and a pointer to the optimal segment ends
+An error status code with a pointer to the optimal cost values and a pointer to the optimal segment ends
 }
 \description{
 compute the optimal changepoint model for a vector of real-valued data
@@ -24,6 +22,6 @@ and a non-negative real-valued penalty,
 given the square loss (to minimize) / gaussian likelihood (to maximize)
 }
 \examples{
-opart_gaussian(3, c(1,2,3), 1)
-opart_gaussian(4, c(1,2,3,4), 1)
+opart_gaussian(c(1,2,3), 1)
+opart_gaussian(c(1,2,3,4), 2)
 }

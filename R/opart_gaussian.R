@@ -2,30 +2,22 @@
 #' and a non-negative real-valued penalty,
 #' given the square loss (to minimize) / gaussian likelihood (to maximize)
 #'
-#' @param n_data A number indicating the number of data points
-#' @param data_ptr A list of numbers for which the changepoint model is to be computed
+#' @param data A list of numbers for which the changepoint model is to be computed
 #' @param penalty A non-negative real number indicating penalty parameter
-#' @return A pointer to the optimal cost values and a pointer to the optimal segment ends
+#' @return An error status code with a pointer to the optimal cost values and a pointer to the optimal segment ends
 #' @examples
-#' opart_gaussian(3, c(1,2,3), 1)
-#' opart_gaussian(4, c(1,2,3,4), 1)
+#' opart_gaussian(c(1,2,3), 1)
+#' opart_gaussian(c(1,2,3,4), 2)
 
 
-opart_gaussian <- structure(function(n_data, data_ptr, penalty) {
+opart_gaussian <- structure(function(data, penalty) {
   result <- .C("opart_gaussian_interface",
-               as.integer(n_data),
-               as.double(data_ptr),
+               as.integer(length(data)),
+               as.double(data),
                as.double(penalty),
-               cost_ptr = as.double(vector("double", n_data)),
-               end_ptr = as.integer(vector("integer", n_data)),
-               error = integer(1),
+               cost_ptr = as.double(vector("double", length(data))),
+               end_ptr = as.integer(vector("integer", length(data))),
                PACKAGE="opart")
 
-  error <- result$error
-  cost <- result$cost_ptr
-  ends <- result$end_ptr
-
-  print(error)
-  print(cost)
-  print(ends)
+  print(result)
 })
