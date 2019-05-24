@@ -11,12 +11,41 @@
 
 
 opart_gaussian <- structure(function(data, penalty) {
+
+  #check for positive length of data
+  if(!(length(data) > 0)){
+    stop("data vector must have atleast one element")
+  }
+
+  #check if there are any missing values in data vector
+  if(any(is.na(data))){
+    stop("data vector has missing(NA) values")
+  }
+
+  #check if data vector has all finite numeric values
+  if(!(all(is.numeric(data)) && all(is.finite(data)))){
+    stop("data vector must contains finite numeric values")
+  }
+
+  #check if the penalty value is numeric
+  if(!is.numeric(penalty)){
+    stop("penalty value should be numeric")
+  }
+
+  #check if penalty is finite and of length 1
+  if(!(is.finite(penalty) && (length(penalty) == 1))){
+    stop("penalty must be a finite numeric value")
+  }
+
+
   result <- .C("opart_gaussian_interface",
                as.integer(length(data)),
                as.double(data),
                as.double(penalty),
                cost_ptr = as.double(vector("double", length(data))),
                end_ptr = as.integer(vector("integer", length(data))),
+               sums = as.double(vector("double", length(data))),
+               sq_sums = as.double(vector("double", length(data))),
                PACKAGE="opart")
 
   print(result)

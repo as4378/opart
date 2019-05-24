@@ -4,8 +4,8 @@
 
 
 void opart_gaussian_interface
-  (int* n_data, double *data_ptr, double* penalty, double *cost_ptr, int *end_ptr){
-  int status = opart_gaussian(n_data[0], data_ptr, penalty[0], cost_ptr, end_ptr);
+  (int* n_data, double *data_ptr, double* penalty, double *cost_ptr, int *end_ptr, double* sums, double* sq_sums){
+  int status = opart_gaussian(n_data[0], data_ptr, penalty[0], cost_ptr, end_ptr, sums, sq_sums);
   if(status == NEGATIVE_PENALTY){
     error("penalty value must be greater than 0");
   }
@@ -19,8 +19,8 @@ void opart_gaussian_interface
 
 R_CMethodDef cMethods[] = {
   {"opart_gaussian_interface",
-   (DL_FUNC) &opart_gaussian_interface, 5
-    //,{int, double, double, double, int}
+   (DL_FUNC) &opart_gaussian_interface, 7
+    //,{int, double, double, double, int, double, double}
   },
   {NULL, NULL, 0}
 };
