@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+Many common approaches to detecting changepoints, for example based on statistical criteria such as penalised likelihood or minimum description length, can be formulated in terms of minimising a cost over segmentations. We focus on a class of dynamic programming algorithms that can solve the resulting minimisation problem exactly, and thus find the optimal segmentation under the given statistical criteria. The standard implementation of these dynamic programming methods have a computational cost that scales at least quadratically in the length of the time-series. Recently pruning ideas have been suggested that can speed up the dynamic programming algorithms, whilst still being guaranteed to be optimal, in that they find the true minimum of the cost function. Here we extend these pruning methods, and introduce two new algorithms for segmenting data: FPOP and SNIP. Empirical results show that FPOP is substantially faster than existing dynamic programming methods, and unlike the existing methods its computational efficiency is robust to the number of changepoints in the data. We evaluate the method for detecting copy number variations and observe that FPOP has a computational cost that is even competitive with that of binary segmentation, but can give much more accurate segmentations.
 
 - Never uses retina figures
 - Has a smaller default figure size
