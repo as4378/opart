@@ -4,14 +4,20 @@
 
 
 void opart_gaussian_interface
-  (int* n_data, double *data_ptr, double* penalty, double *cost_ptr, int *end_ptr, double* sums, double* sq_sums){
-  int status = opart_gaussian(n_data[0], data_ptr, penalty[0], cost_ptr, end_ptr, sums, sq_sums);
+  (int* n_data, double *data_ptr, double* penalty, double *cost_ptr, int *end_ptr,
+   double* sums, double* sq_sums){
+
+  int status = opart_gaussian(n_data[0], data_ptr, penalty[0], cost_ptr, end_ptr,
+                              sums, sq_sums);
+
   if(status == NEGATIVE_PENALTY){
     error("penalty value must be greater than 0");
   }
+
   if(status == NUM_OF_DATA_VALUES_LESS_THAN_ZERO){
     error("the data vector must have more than 0 elements");
   }
+
   if(status != 0){
     error("error code %d", status);
   }
