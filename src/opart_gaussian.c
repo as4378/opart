@@ -1,11 +1,27 @@
 #include <stdlib.h>
 #include "opart_gaussian.h"
 
-void InitializeSums(double*, double*, int);
-void InitializeSumsSq(double*, double*, int);
 
+/*****************************************Global Declarations*************************************/
+double* sums; //storing cumulative sums of the data vector
+double* sums_sq; //storing cumulative squared sums of the data vector
+double* dp; //temporary buffer for storing optimal costs upto a data point in data vector
+int* positions; //temporary buffer fot storing segment ends for optimal costs
+double beta; //global variable for storing penalty value
+/*************************************************************************************************/
+
+
+/******************************************Function declarations**********************************/
+void InitializeSums(double* data, double* sums, int n_data); //stores cumulative sums
+void InitializeSumsSq(double* data, double* sums_sq, int n_data); //stores cumulative squared sums
+double GetMean(int start, int end); //gets mean of the segment between start and end point in constant time
+double GetSegmentCost(int start, int end); // gets the cost of segment between start and end point in constant time
+void FindOptimalSegments(double* data, int n_data); //finds the optimal cost values upto a data point in data vector
+/**************************************************************************************************/
+
+//use const fr inputs
 int opart_gaussian(int n_data, double *data_ptr, double penalty, double *cost_ptr,
-                   int *end_ptr, double* sums, double* sq_sums){
+                   int *end_ptr){
 
 	if(penalty < 0){
 	  return NEGATIVE_PENALTY;
@@ -15,19 +31,95 @@ int opart_gaussian(int n_data, double *data_ptr, double penalty, double *cost_pt
 	  return NUM_OF_DATA_VALUES_LESS_THAN_ZERO;
 	}
 
-  InitializeSums(data_ptr, sums, n_data);
-	InitializeSumsSq(data_ptr, sq_sums, n_data);
-
 	int i;
-	for(i = 0; i < n_data; i++){
-		cost_ptr[i] = data_ptr[i] / penalty;
+	int j;
+	int temp;
+	int maxPos;
+
+	//allocate dynamic memory for global variables
+	sums = (double*)malloc((n_data + 1)*(sizeof(double)));
+	sums_sq = (double*)malloc((n_data + 1)*(sizeof(double)));
+	dp = (double*)malloc((n_data + 1)*(sizeof(double)));
+	positions = (int*)malloc((n_data + 1)*(sizeof(int)));
+
+	//assign penalty to beta so that it's available globally
+  beta = penalty;
+
+  //store cumulative sums and squared sums for O(1) access to segment cost
+  InitializeSums(data_ptr, sums, n_data);
+	InitializeSumsSq(data_ptr, sums_sq, n_data);
+
+	//Compute optimal cost values and segment ends
+  FindOptimalSegments(data_ptr, n_data);
+
+  //Copy the optimal cost values to cost_ptr for return
+	for(i = 1; i <= n_data; i++){
+		cost_ptr[i - 1] = dp[i];
 	}
 
-	for(i = 0; i < n_data; i++){
-		end_ptr[i] = i;
+	//Traceback the optimal segment ends and copy to end_ptr for return
+	end_ptr[0] = n_data;
+	i = n_data;
+	j = 1;
+	while(positions[i] > 1){
+		end_ptr[j++] = positions[i] - 1;
+	  i = positions[i] - 1;
+	}
+	i = 0;
+	maxPos = j;
+	j--;
+	while(j > i){
+	  temp = end_ptr[i];
+	  end_ptr[i] = end_ptr[j];
+	  end_ptr[j] = temp;
+	  i++;
+	  j--;
 	}
 
+	//assigning -2 as a placeholder value indicating that segment is not used in the optimal model
+	while(maxPos < n_data){
+	  end_ptr[maxPos++] = -2;
+	}
+
+	//free the allocated memory
+  free(sums);
+	free(sums_sq);
+	free(dp);
+	free(positions);
+
+	//success
 	return 0;
+}
+
+void FindOptimalSegments(double* data_points, int n_data){
+
+  int i, j;
+  double val;
+
+  dp[0] = beta;
+  positions[0] = 0;
+  double min;
+  int pos;
+
+  for(i = 0; i < n_data + 1; i++){
+    positions[i] = -2;
+  }
+
+  for(i = 1; i < n_data + 1; i++){
+    for(j = 0; j < i; j++){
+       val = dp[j] + GetSegmentCost(j + 1, i) + beta;
+       if(j == 0){
+         min = val;
+         pos = j + 1;
+       }
+       if(val < min){
+         min = val;
+         pos = j + 1;
+       }
+    }
+    dp[i] = min;
+    positions[i] = pos;
+  }
 }
 
 
@@ -57,3 +149,26 @@ void InitializeSumsSq(double* data, double* sums_sq, int n_data){
     sums_sq[x] = total;
   }
 }
+
+double GetMean(int initial, int final){
+  double mean = 0;
+
+  int length = final - initial + 1;
+  if(initial == 0)
+    mean = sums[final] / length;
+  else
+    mean = (sums[final] - sums[initial - 1]) / length;
+
+  return mean;
+}
+
+double GetSegmentCost(int initial, int final){
+  double mu = GetMean(initial, final);
+  int length = final - initial + 1;
+  double total = mu * length;
+
+  return ((-2 * mu * total) + (length * mu * mu));
+}
+
+
+

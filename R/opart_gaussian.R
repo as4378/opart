@@ -10,7 +10,7 @@
 #' opart_gaussian(c(1,2,3,4), 2)
 
 
-opart_gaussian <- structure(function(data, penalty) {
+opart_gaussian <- function(data, penalty) {
 
   #check for positive length of data
   if(!(length(data) > 0)){
@@ -37,16 +37,15 @@ opart_gaussian <- structure(function(data, penalty) {
     stop("penalty must be a finite numeric value")
   }
 
-
   result <- .C("opart_gaussian_interface",
-               as.integer(length(data)),
-               as.double(data),
-               as.double(penalty),
+               n_data = as.integer(length(data)),
+               data_ptr = as.double(data),
+               penalty = as.double(penalty),
                cost_ptr = as.double(vector("double", length(data))),
                end_ptr = as.integer(vector("integer", length(data))),
-               sums = as.double(vector("double", length(data))),
-               sq_sums = as.double(vector("double", length(data))),
                PACKAGE="opart")
 
-  print(result)
-})
+  seg_ends <- (result$end_ptr)
+  result$end_ptr <- seg_ends[seg_ends != -2]
+  result
+}
