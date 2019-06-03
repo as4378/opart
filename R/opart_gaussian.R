@@ -8,6 +8,7 @@
 #' @examples
 #' opart_gaussian(c(1,2,3), 1)
 #' opart_gaussian(c(1,2,3,4), 2)
+#' @export
 
 
 opart_gaussian <- function(data, penalty) {
@@ -39,13 +40,13 @@ opart_gaussian <- function(data, penalty) {
 
   result <- .C("opart_gaussian_interface",
                n_data = as.integer(length(data)),
-               data_ptr = as.double(data),
+               data.vec = as.double(data),
                penalty = as.double(penalty),
-               cost_ptr = as.double(vector("double", length(data))),
-               end_ptr = as.integer(vector("integer", length(data))),
+               cost.vec = as.double(vector("double", length(data))),
+               end.vec = as.integer(vector("integer", length(data))),
                PACKAGE="opart")
 
-  seg_ends <- (result$end_ptr)
-  result$end_ptr <- seg_ends[seg_ends != -2]
+  seg_ends <- (result$end.vec)
+  result$end.vec <- seg_ends[seg_ends != -2]
   result
 }

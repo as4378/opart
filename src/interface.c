@@ -4,7 +4,7 @@
 
 
 void opart_gaussian_interface
-  (int* n_data, double *data_ptr, double* penalty, double *cost_ptr, int *end_ptr){
+  (const int* n_data, const double *data_ptr, const double* penalty, double *cost_ptr, int *end_ptr){
 
   int status = opart_gaussian(n_data[0], data_ptr, penalty[0], cost_ptr, end_ptr);
 
