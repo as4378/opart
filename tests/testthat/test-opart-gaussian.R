@@ -13,7 +13,7 @@ test_that("opart gives error for negative penalty", {
 test_that("opart gives error when data points are less than 1", {
   expect_error({
     opart_gaussian(c(), 1)
-  }, "the data vector must have more than 0 elements",
+  }, "data vector must have atleast one element",
   fixed=TRUE)
 })
 
