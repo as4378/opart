@@ -20,5 +20,6 @@ BugReports: https://github.com/as4378/opart/issues
 Suggests: 
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    covr
 VignetteBuilder: knitr
