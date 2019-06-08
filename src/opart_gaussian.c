@@ -11,8 +11,8 @@ void FindOptimalSegments(const double* data, double* sums, double* dp,
 /**************************************************************************************************/
 
 
-int opart_gaussian(const int n_data, const double *data_ptr, const double penalty, double *cost_ptr,
-                   int *end_ptr){
+int opart_gaussian(const int n_data, const double *data_ptr, const double penalty,
+                   double *cost_ptr, double* sums, double* dp, int *end_ptr, int* positions){
 
 	if(penalty < 0){
 	  return NEGATIVE_PENALTY;
@@ -26,11 +26,6 @@ int opart_gaussian(const int n_data, const double *data_ptr, const double penalt
 	int j;
 	int temp;
 	int maxPos;
-
-	//allocate dynamic memory for storing sums, cost values and segment ends
-	double* sums = (double*)malloc((n_data + 1)*(sizeof(double)));
-	double* dp = (double*)malloc((n_data + 1)*(sizeof(double)));
-	int* positions = (int*)malloc((n_data + 1)*(sizeof(int)));
 
   //store cumulative sums for O(1) access to segment cost
   InitializeSums(data_ptr, sums, n_data);
@@ -66,11 +61,6 @@ int opart_gaussian(const int n_data, const double *data_ptr, const double penalt
 	while(maxPos < n_data){
 	  end_ptr[maxPos++] = -2;
 	}
-
-	//free the allocated memory
-  free(sums);
-	free(dp);
-	free(positions);
 
 	//success
 	return 0;
