@@ -21,5 +21,10 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
+<<<<<<< HEAD
     dplyr
+=======
+    dplyr,
+    covr
+>>>>>>> C_interface
 VignetteBuilder: knitr

@@ -2,18 +2,95 @@
 #include "opart_gaussian.h"
 
 
-/******************************************Function declarations**********************************/
-void InitializeSums(const double* data, double* sums, const int n_data); //stores cumulative sums
-double GetMean(int start, int end, double* sums); //gets mean of the segment between start and end point in constant time
-double GetSegmentCost(int start, int end, double* sums); // gets the cost of segment between start and end point in constant time
-void FindOptimalSegments(const double* data, double* sums, double* dp,
-                         int* positions, const double beta, int n_data); //finds the optimal cost values upto a data point in data vector
-/**************************************************************************************************/
+//Utility function for storing cumulative sums of given list of values
+void InitializeSums(const double* data, double* sums, const int n_data){
+  double total = 0;
+  int x;
+  for(x = 0; x < n_data + 1; x++){
+    sums[x] = 0;
+    if(x == 0){
+      continue;
+    }
+    total += data[x - 1];
+    sums[x] = total;
+  }
+}
+
+//Utility function for getting mean of a segment starting at "initial" and ending at "final"
+double GetMean(int initial, int final, double* sums){
+  double mean = 0;
+
+  int length = final - initial + 1;
+  if(initial == 0)
+    mean = sums[final] / length;
+  else
+    mean = (sums[final] - sums[initial - 1]) / length;
+
+  return mean;
+}
+
+//Utility function for getting cost of segment starting at "initial" and ending at "final"
+double GetSegmentCost(int initial, int final, double* sums){
+  double mu = GetMean(initial, final, sums);
+  int length = final - initial + 1;
+  double total = mu * length;
+
+  return ((-2 * mu * total) + (length * mu * mu));
+}
 
 
-int opart_gaussian(const int n_data, const double *data_ptr, const double penalty, double *cost_ptr,
-                   int *end_ptr){
+//Recursive function for returning the optimal cost of segmentation upto each data point in the dataset
+//This function essentially implements the optimal partitioning algorith described in section 3.1 in:
+//https://link.springer.com/article/10.1007/s11222-016-9636-3
+//The recursive function is:
+//F(t) = min{F(s) + C(Ys+1:t) + B} for all 's' in [0,t) and 'B' is the penalty for segmentation
+//We calculate F(t) for each data-point 't' in the given dataset to get the optimal cost
+//F(0) = B
+void FindOptimalSegments(const double* data_points, double* sums, double* dp,
+                         int* positions, const double beta, const int n_data){
 
+  //loop variables
+  int i, s, t;
+
+  //temporary variables used in recursive function
+  double val;
+  double min;
+  int pos;
+
+  //F(0) = B
+  dp[0] = beta;
+
+  //initialize the positions with -2 in the positions vector as initially no data-point is segment end
+  for(i = 0; i < n_data + 1; i++){
+    positions[i] = -2;
+  }
+
+  //Calculate F(t) for all t in 'data_points'
+  //F(t) = min{F(s) + C(Ys+1:t) + B}
+  for(t = 1; t < n_data + 1; t++){
+    for(s = 0; s < t; s++){
+      val = dp[s] + GetSegmentCost(s + 1, t, sums) + beta;
+      if(s == 0){
+        min = val;
+        pos = s + 1;
+      }
+      if(val < min){
+        min = val;
+        pos = s + 1;
+      }
+    }
+    //update the dynamic programming cost and position buffer with minimum cost
+    //and associated position
+    dp[t] = min;
+    positions[t] = pos;
+  }
+}
+
+//The interface function that gets called through R
+int opart_gaussian(const int n_data, const double *data_ptr, const double penalty,
+                   double *cost_ptr, double* sums, double* dp, int *end_ptr, int* positions){
+
+  //test for boundary cases
 	if(penalty < 0){
 	  return NEGATIVE_PENALTY;
 	}
@@ -22,15 +99,13 @@ int opart_gaussian(const int n_data, const double *data_ptr, const double penalt
 	  return NUM_OF_DATA_VALUES_LESS_THAN_ZERO;
 	}
 
+	//loop variables
 	int i;
 	int j;
+
+	//temporary variables used in tracing back segment ends
 	int temp;
 	int maxPos;
-
-	//allocate dynamic memory for storing sums, cost values and segment ends
-	double* sums = (double*)malloc((n_data + 1)*(sizeof(double)));
-	double* dp = (double*)malloc((n_data + 1)*(sizeof(double)));
-	int* positions = (int*)malloc((n_data + 1)*(sizeof(int)));
 
   //store cumulative sums for O(1) access to segment cost
   InitializeSums(data_ptr, sums, n_data);
@@ -48,8 +123,9 @@ int opart_gaussian(const int n_data, const double *data_ptr, const double penalt
 	i = n_data;
 	j = 1;
 	while(positions[i] > 1){
-		end_ptr[j++] = positions[i] - 1;
+		end_ptr[j] = positions[i] - 1;
 	  i = positions[i] - 1;
+	  j++;
 	}
 	i = 0;
 	maxPos = j;
@@ -64,80 +140,10 @@ int opart_gaussian(const int n_data, const double *data_ptr, const double penalt
 
 	//assigning -2 as a placeholder value indicating that segment is not used in the optimal model
 	while(maxPos < n_data){
-	  end_ptr[maxPos++] = -2;
+	  end_ptr[maxPos] = -2;
+	  maxPos++;
 	}
-
-	//free the allocated memory
-  free(sums);
-	free(dp);
-	free(positions);
 
 	//success
 	return 0;
-}
-
-void FindOptimalSegments(const double* data_points, double* sums, double* dp,
-                         int* positions, const double beta, const int n_data){
-
-  int i, j;
-  double val;
-
-  dp[0] = beta;
-  positions[0] = 0;
-  double min;
-  int pos;
-
-  for(i = 0; i < n_data + 1; i++){
-    positions[i] = -2;
-  }
-
-  for(i = 1; i < n_data + 1; i++){
-    for(j = 0; j < i; j++){
-       val = dp[j] + GetSegmentCost(j + 1, i, sums) + beta;
-       if(j == 0){
-         min = val;
-         pos = j + 1;
-       }
-       if(val < min){
-         min = val;
-         pos = j + 1;
-       }
-    }
-    dp[i] = min;
-    positions[i] = pos;
-  }
-}
-
-
-void InitializeSums(const double* data, double* sums, const int n_data){
-  double total = 0;
-  int x;
-  for(x = 0; x < n_data + 1; x++){
-    sums[x] = 0;
-    if(x == 0){
-      continue;
-    }
-    total += data[x - 1];
-    sums[x] = total;
-  }
-}
-
-double GetMean(int initial, int final, double* sums){
-  double mean = 0;
-
-  int length = final - initial + 1;
-  if(initial == 0)
-    mean = sums[final] / length;
-  else
-    mean = (sums[final] - sums[initial - 1]) / length;
-
-  return mean;
-}
-
-double GetSegmentCost(int initial, int final, double* sums){
-  double mu = GetMean(initial, final, sums);
-  int length = final - initial + 1;
-  double total = mu * length;
-
-  return ((-2 * mu * total) + (length * mu * mu));
 }
