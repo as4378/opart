@@ -1,1 +1,9 @@
 
+TODOs
+
+2019.06.11
+
+write test cases for 100% coverage (currently 83%)
+add more sections in vignette
+merge changes from C_interface to unit_tests and documentation
+remove function declarations from opart_gaussian.c
