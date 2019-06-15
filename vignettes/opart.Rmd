@@ -15,7 +15,6 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(dplyr)
-library(fpop)
 library(opart)
 ```
 
@@ -25,6 +24,5 @@ In this vignette we will use neuroblastoma data set to compare the run times of 
 
 ```{r}
 selectedData <- read.csv("..\\tests\\testthat\\neuroblastoma.csv", header = TRUE, sep = ",")
-Fpop(selectedData$logratio, 1)$t.est
 opart_gaussian(selectedData$logratio, 1)$end.vec
 ```
