@@ -2,6 +2,7 @@
 #include "opart_gaussian.h"
 
 
+//Utility function for storing cumulative sums of given list of values
 void InitializeSums(const double* data, double* sums, const int n_data){
   double total = 0;
   int x;
@@ -15,6 +16,7 @@ void InitializeSums(const double* data, double* sums, const int n_data){
   }
 }
 
+//Utility function for getting mean of a segment starting at "initial" and ending at "final"
 double GetMean(int initial, int final, double* sums){
   double mean = 0;
 
@@ -27,6 +29,7 @@ double GetMean(int initial, int final, double* sums){
   return mean;
 }
 
+//Utility function for getting cost of segment starting at "initial" and ending at "final"
 double GetSegmentCost(int initial, int final, double* sums){
   double mu = GetMean(initial, final, sums);
   int length = final - initial + 1;
@@ -35,42 +38,59 @@ double GetSegmentCost(int initial, int final, double* sums){
   return ((-2 * mu * total) + (length * mu * mu));
 }
 
+
+//Recursive function for returning the optimal cost of segmentation upto each data point in the dataset
+//This function essentially implements the optimal partitioning algorith described in section 3.1 in:
+//https://link.springer.com/article/10.1007/s11222-016-9636-3
+//The recursive function is:
+//F(t) = min{F(s) + C(Ys+1:t) + B} for all 's' in [0,t) and 'B' is the penalty for segmentation
+//We calculate F(t) for each data-point 't' in the given dataset to get the optimal cost
+//F(0) = B
 void FindOptimalSegments(const double* data_points, double* sums, double* dp,
                          int* positions, const double beta, const int n_data){
 
-  int i, j;
-  double val;
+  //loop variables
+  int i, s, t;
 
-  dp[0] = beta;
-  positions[0] = 0;
+  //temporary variables used in recursive function
+  double val;
   double min;
   int pos;
 
+  //F(0) = B
+  dp[0] = beta;
+
+  //initialize the positions with -2 in the positions vector as initially no data-point is segment end
   for(i = 0; i < n_data + 1; i++){
     positions[i] = -2;
   }
 
-  for(i = 1; i < n_data + 1; i++){
-    for(j = 0; j < i; j++){
-      val = dp[j] + GetSegmentCost(j + 1, i, sums) + beta;
-      if(j == 0){
+  //Calculate F(t) for all t in 'data_points'
+  //F(t) = min{F(s) + C(Ys+1:t) + B}
+  for(t = 1; t < n_data + 1; t++){
+    for(s = 0; s < t; s++){
+      val = dp[s] + GetSegmentCost(s + 1, t, sums) + beta;
+      if(s == 0){
         min = val;
-        pos = j + 1;
+        pos = s + 1;
       }
       if(val < min){
         min = val;
-        pos = j + 1;
+        pos = s + 1;
       }
     }
-    dp[i] = min;
-    positions[i] = pos;
+    //update the dynamic programming cost and position buffer with minimum cost
+    //and associated position
+    dp[t] = min;
+    positions[t] = pos;
   }
 }
 
-
+//The interface function that gets called through R
 int opart_gaussian(const int n_data, const double *data_ptr, const double penalty,
                    double *cost_ptr, double* sums, double* dp, int *end_ptr, int* positions){
 
+  //test for boundary cases
 	if(penalty < 0){
 	  return NEGATIVE_PENALTY;
 	}
@@ -79,8 +99,11 @@ int opart_gaussian(const int n_data, const double *data_ptr, const double penalt
 	  return NUM_OF_DATA_VALUES_LESS_THAN_ZERO;
 	}
 
+	//loop variables
 	int i;
 	int j;
+
+	//temporary variables used in tracing back segment ends
 	int temp;
 	int maxPos;
 
@@ -100,8 +123,9 @@ int opart_gaussian(const int n_data, const double *data_ptr, const double penalt
 	i = n_data;
 	j = 1;
 	while(positions[i] > 1){
-		end_ptr[j++] = positions[i] - 1;
+		end_ptr[j] = positions[i] - 1;
 	  i = positions[i] - 1;
+	  j++;
 	}
 	i = 0;
 	maxPos = j;
@@ -116,7 +140,8 @@ int opart_gaussian(const int n_data, const double *data_ptr, const double penalt
 
 	//assigning -2 as a placeholder value indicating that segment is not used in the optimal model
 	while(maxPos < n_data){
-	  end_ptr[maxPos++] = -2;
+	  end_ptr[maxPos] = -2;
+	  maxPos++;
 	}
 
 	//success
