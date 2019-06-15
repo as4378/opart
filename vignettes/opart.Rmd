@@ -14,7 +14,6 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-#library(dplyr)
 library(opart)
 ```
 
@@ -23,6 +22,6 @@ Many common approaches to detecting changepoints, for example based on statistic
 In this vignette we will use neuroblastoma data set to compare the run times of opart with Fpop and cpt.mean.
 
 ```{r}
-selectedData <- read.csv("..\\tests\\testthat\\neuroblastoma.csv", header = TRUE, sep = ",")
+selectedData <- read.csv("../tests/testthat/neuroblastoma.csv", header = TRUE, sep = ",")
 opart_gaussian(selectedData$logratio, 1)$end.vec
 ```
