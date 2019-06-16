@@ -1,6 +1,7 @@
 library(testthat)
 context("opart-gaussian")
 library(opart)
+data(neuroblastoma, package="neuroblastoma")
 
 test_that("opart gives error for negative penalty", {
   expect_error({
@@ -31,7 +32,7 @@ test_that("all the data points in one segment", {
 
 #test for neuroblastoma data set with profile.id = 1 and chromosome = 1
 
-selProfile <- read.csv("neuroblastoma.csv", header = TRUE, sep = ",")
+selProfile <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
 nrows <- nrow(selProfile)
 
 #test for large penalty
