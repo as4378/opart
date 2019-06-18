@@ -6,12 +6,9 @@
 void InitializeSums(const double* data, double* sums, const int n_data){
   double total = 0;
   int x;
-  for(x = 0; x < n_data + 1; x++){
+  for(x = 0; x < n_data; x++){
     sums[x] = 0;
-    if(x == 0){
-      continue;
-    }
-    total += data[x - 1];
+    total += data[x];
     sums[x] = total;
   }
 }
@@ -57,26 +54,36 @@ void FindOptimalSegments(const double* data_points, double* sums, double* dp,
   double min;
   int pos;
 
-  //F(0) = B
-  dp[0] = beta;
 
   //initialize the positions with -2 in the positions vector as initially no data-point is segment end
-  for(i = 0; i < n_data + 1; i++){
+  for(i = 0; i < n_data; i++){
     positions[i] = -2;
   }
 
+  //F(1) = F(0) + Cy1:1 + B
+  //F(0) = B
+  dp[0] = beta + GetSegmentCost(0, 0, sums) + beta;
+  positions[0] = -1;
+
   //Calculate F(t) for all t in 'data_points'
   //F(t) = min{F(s) + C(Ys+1:t) + B}
-  for(t = 1; t < n_data + 1; t++){
-    for(s = 0; s < t; s++){
-      val = dp[s] + GetSegmentCost(s + 1, t, sums) + beta;
-      if(s == 0){
-        min = val;
-        pos = s + 1;
+  for(t = 1; t < n_data; t++){
+    for(s = -1; s < t; s++){
+      if(s == -1){
+        //F(0) = B
+        val = beta + GetSegmentCost(s + 1, t, sums) + beta;
       }
-      if(val < min){
+      else{
+        val = dp[s] + GetSegmentCost(s + 1, t, sums) + beta;
+      }
+
+      if(s == -1){
         min = val;
-        pos = s + 1;
+        pos = s;
+      }
+      if(val <= min){
+        min = val;
+        pos = s;
       }
     }
     //update the dynamic programming cost and position buffer with minimum cost
@@ -91,59 +98,59 @@ int opart_gaussian(const int n_data, const double *data_ptr, const double penalt
                    double *cost_ptr, double* sums, double* dp, int *end_ptr, int* positions){
 
   //test for boundary cases
-	if(penalty < 0){
-	  return NEGATIVE_PENALTY;
-	}
+  if(penalty < 0){
+    return NEGATIVE_PENALTY;
+  }
 
-	if(n_data <= 0){
-	  return NUM_OF_DATA_VALUES_LESS_THAN_ZERO;
-	}
+  if(n_data <= 0){
+    return NUM_OF_DATA_VALUES_LESS_THAN_ZERO;
+  }
 
-	//loop variables
-	int i;
-	int j;
+  //loop variables
+  int i;
+  int j;
 
-	//temporary variables used in tracing back segment ends
-	int temp;
-	int maxPos;
+  //temporary variables used in tracing back segment ends
+  int temp;
+  int maxPos;
 
   //store cumulative sums for O(1) access to segment cost
   InitializeSums(data_ptr, sums, n_data);
 
-	//Compute optimal cost values and segment ends
+  //Compute optimal cost values and segment ends
   FindOptimalSegments(data_ptr, sums, dp, positions, penalty, n_data);
 
   //Copy the optimal cost values to cost_ptr for return
-	for(i = 1; i <= n_data; i++){
-		cost_ptr[i - 1] = dp[i];
-	}
+  for(i = 0; i < n_data; i++){
+    cost_ptr[i] = dp[i];
+  }
 
-	//Traceback the optimal segment ends and copy to end_ptr for return
-	end_ptr[0] = n_data;
-	i = n_data;
-	j = 1;
-	while(positions[i] > 1){
-		end_ptr[j] = positions[i] - 1;
-	  i = positions[i] - 1;
-	  j++;
-	}
-	i = 0;
-	maxPos = j;
-	j--;
-	while(j > i){
-	  temp = end_ptr[i];
-	  end_ptr[i] = end_ptr[j];
-	  end_ptr[j] = temp;
-	  i++;
-	  j--;
-	}
+  //Traceback the optimal segment ends and copy to end_ptr for return
+  end_ptr[0] = n_data;
+  i = n_data - 1;
+  j = 1;
+  while(positions[i] >= 0){
+    end_ptr[j] = positions[i] + 1;
+    i = positions[i];
+    j++;
+  }
+  i = 0;
+  maxPos = j;
+  j--;
+  while(j > i){
+    temp = end_ptr[i];
+    end_ptr[i] = end_ptr[j];
+    end_ptr[j] = temp;
+    i++;
+    j--;
+  }
 
-	//assigning -2 as a placeholder value indicating that segment is not used in the optimal model
-	while(maxPos < n_data){
-	  end_ptr[maxPos] = -2;
-	  maxPos++;
-	}
+  //assigning -2 as a placeholder value indicating that segment is not used in the optimal model
+  while(maxPos < n_data){
+    end_ptr[maxPos] = -2;
+    maxPos++;
+  }
 
-	//success
-	return 0;
+  //success
+  return 0;
 }
