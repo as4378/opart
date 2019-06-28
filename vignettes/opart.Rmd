@@ -15,6 +15,10 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(opart)
+library(fpop)
+library(microbenchmark)
+library(data.table)
+library(ggplot2)
 ```
 
 Many common approaches to detecting changepoints, for example based on statistical criteria such as penalised likelihood or minimum description length, can be formulated in terms of minimising a cost over segmentations. We focus on a class of dynamic programming algorithms that can solve the resulting minimisation problem exactly, and thus find the optimal segmentation under the given statistical criteria. The standard implementation of these dynamic programming methods have a computational cost that scales at least quadratically in the length of the time-series. Recently pruning ideas have been suggested that can speed up the dynamic programming algorithms, whilst still being guaranteed to be optimal, in that they find the true minimum of the cost function. Here we extend these pruning methods, and introduce two new algorithms for segmenting data: FPOP and SNIP. Empirical results show that FPOP is substantially faster than existing dynamic programming methods, and unlike the existing methods its computational efficiency is robust to the number of changepoints in the data. We evaluate the method for detecting copy number variations and observe that FPOP has a computational cost that is even competitive with that of binary segmentation, but can give much more accurate segmentations.
@@ -25,4 +29,41 @@ In this vignette we will use neuroblastoma data set to compare the run times of 
 data(neuroblastoma, package="neuroblastoma")
 selectedData <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
 opart_gaussian(selectedData$logratio, 1)$end.vec
+```
+
+
+Using microbenchmark to compare run times we get:
+
+```{r}
+selected_ids = unique(neuroblastoma$profiles$profile.id)
+selected_data = neuroblastoma$profiles
+num_tests = length(selected_ids)
+timing_list = list()
+n = 1
+while(n <= 50){
+  current_id = selected_ids[n]
+  current_data = subset(selected_data, profile.id == current_id)
+  length = length(current_data$logratio)
+  timing = microbenchmark(
+  "fpop"={
+      Fpop(current_data$logratio, 1)
+    },
+   "opart_gaussian"={
+        opart_gaussian(current_data$logratio, 1)
+    }, times=5)
+  
+  
+  timing_list[[paste(n)]] = data.table(length, timing)
+  n = n + 1
+}
+
+timing.dt = do.call(rbind, timing_list)
+```
+
+```{r fig.height = 5, fig.width = 10}
+ggplot(data = timing.dt, aes(x = log(timing.dt$length), 
+                             y = log(timing.dt$time), 
+                             col = timing.dt$expr))+
+  geom_smooth() +
+  labs(x="log(size)", y="log(time(ms))", col="method")
 ```
