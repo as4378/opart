@@ -50,7 +50,7 @@ void FindOptimalSegments(const double* data_points, double* sums, double* dp,
   int i, s, t;
 
   //temporary variables used in recursive function
-  double val;
+  double f_tau;
   double min;
   int pos;
 
@@ -62,7 +62,7 @@ void FindOptimalSegments(const double* data_points, double* sums, double* dp,
 
   //F(1) = F(0) + Cy1:1 + B
   //F(0) = B
-  dp[0] = beta + GetSegmentCost(0, 0, sums) + beta;
+  dp[0] = -1*beta + GetSegmentCost(0, 0, sums) + beta;
   positions[0] = -1;
 
   //Calculate F(t) for all t in 'data_points'
@@ -71,18 +71,18 @@ void FindOptimalSegments(const double* data_points, double* sums, double* dp,
     for(s = -1; s < t; s++){
       if(s == -1){
         //F(0) = B
-        val = beta + GetSegmentCost(s + 1, t, sums) + beta;
+        f_tau = -1*beta + GetSegmentCost(s + 1, t, sums) + beta;
       }
       else{
-        val = dp[s] + GetSegmentCost(s + 1, t, sums) + beta;
+        f_tau = dp[s] + GetSegmentCost(s + 1, t, sums) + beta;
       }
 
       if(s == -1){
-        min = val;
+        min = f_tau;
         pos = s;
       }
-      if(val <= min){
-        min = val;
+      if(f_tau <= min){
+        min = f_tau;
         pos = s;
       }
     }
