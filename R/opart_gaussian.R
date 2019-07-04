@@ -43,10 +43,10 @@ opart_gaussian <- function(data, penalty) {
                data.vec = as.double(data),
                penalty = as.double(penalty),
                cost.vec = as.double(vector("double", length(data))),
-               sums = as.double(vector("double", length(data) + 1)),
-               dp = as.double(vector("double", length(data) + 1)),
+               sums = as.double(vector("double", length(data))),
+               dp = as.double(vector("double", length(data))),
                end.vec = as.integer(vector("integer", length(data))),
-               positions = as.integer(vector("integer", length(data) + 1)),
+               positions = as.integer(vector("integer", length(data))),
                PACKAGE="opart")
 
   seg_ends <- (result$end.vec)
