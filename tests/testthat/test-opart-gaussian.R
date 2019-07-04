@@ -37,6 +37,13 @@ test_that("all the data points in one segment", {
 })
 
 
+#test for correctness
+res <- opart_gaussian(c(1,2,3,4), 1)
+test_that("cost vector should match manual calculation", {
+  expect_equal(res$cost.vec, c(-1, -4.5, -12.5, -28))
+})
+
+
 #test for neuroblastoma data set with profile.id = 1 and chromosome = 1
 
 selProfile <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
