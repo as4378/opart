@@ -42,11 +42,11 @@ opart_gaussian <- function(data, penalty) {
                n_data = as.integer(length(data)),
                data.vec = as.double(data),
                penalty = as.double(penalty),
-               cost.vec = as.double(vector("double", length(data))),
-               sums = as.double(vector("double", length(data))),
-               dp = as.double(vector("double", length(data))),
-               end.vec = as.integer(vector("integer", length(data))),
-               positions = as.integer(vector("integer", length(data))),
+               cost.vec = double(length(data)),
+               sums = double(length(data)),
+               dp = double(length(data)),
+               end.vec = integer(length(data)),
+               positions = integer(length(data)),
                PACKAGE="opart")
 
   seg_ends <- (result$end.vec)
@@ -55,7 +55,8 @@ opart_gaussian <- function(data, penalty) {
   result$end.vec <- seg_ends[seg_ends != -2]
 
   #remove the columns used for internal calculations as they don't need to be displayed
-  result <- result[-c(5,6,8)]
+  #result <- result[-c(5,6,8)]
+  result <- result[!(names(result) %in% c("sums","dp","positions"))]
 
   #display the result
   result
