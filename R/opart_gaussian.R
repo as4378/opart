@@ -44,6 +44,7 @@ opart_gaussian <- function(data, penalty) {
                penalty = as.double(penalty),
                cost.vec = double(length(data)),
                sums = double(length(data)),
+               sums_sq = double(length(data)),
                dp = double(length(data)),
                end.vec = integer(length(data)),
                positions = integer(length(data)),
