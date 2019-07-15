@@ -22,7 +22,11 @@ Suggests:
     rmarkdown,
     testthat,
     dplyr,
+    ggplot2,
+    data.table,
     covr,
     neuroblastoma,
-    microbenchmark
+    microbenchmark,
+    fpop, 
+    changepoint
 VignetteBuilder: knitr
