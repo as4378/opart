@@ -15,7 +15,6 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(opart)
-library(fpop)
 library(microbenchmark)
 library(data.table)
 library(ggplot2)
@@ -36,6 +35,9 @@ opart_gaussian(selectedData$logratio, 1)$end.vec
 Using microbenchmark to compare run times we get:
 
 ```{r}
+if(requireNamespace("fpop"))
+  install.packages("fpop")
+
 selected_ids = unique(neuroblastoma$profiles$profile.id)
 selected_data = neuroblastoma$profiles
 num_tests = length(selected_ids)
