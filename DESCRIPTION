@@ -23,6 +23,7 @@ Suggests:
     testthat,
     dplyr,
     ggplot2,
+    directlabels,
     data.table,
     covr,
     neuroblastoma,

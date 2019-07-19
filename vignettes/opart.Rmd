@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 library(opart)
 library(microbenchmark)
 library(data.table)
+library(directlabels)
 library(ggplot2)
 library(fpop)
 library(changepoint)
@@ -63,10 +64,13 @@ timing.dt = do.call(rbind, timing_list)
 ```
 
 ```{r fig.height = 5, fig.width = 10}
-ggplot(data = timing.dt, aes(x = log(timing.dt$length), 
+
+p <- ggplot(data = timing.dt, aes(x = log(timing.dt$length), 
                              y = log(timing.dt$time), 
                              col = timing.dt$expr))+
   geom_smooth() +
   labs(x="log(size)", y="log(time(ms))", col="method")
+
+direct.label(p, "last.polygons")
 ```
 
