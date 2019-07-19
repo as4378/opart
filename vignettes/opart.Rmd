@@ -23,7 +23,50 @@ library(fpop)
 library(changepoint)
 ```
 
-In this vignette we will use neuroblastoma data set to compare the run times of opart with Fpop and cpt.mean.
+The optimal partitioning algorithm is a class of approaches for detecting changepoints that can be formulated in terms of defining a cost function for segmentation ([fpop paper](https://link.springer.com/article/10.1007/s11222-016-9636-3)) .
+
+Consider segmenting the data $y_{1:t}$. Denote F(t) to be the minimum value of the penalised cost for segmenting such data and $\beta$ be the penalty due to changepoint, with   F(0)=$−\beta$ . The idea of Optimal Partitioning is to split the minimisation over segmentations into the minimisation over the position of the last changepoint, and then the minimisation over the earlier changepoints. We can then use the fact that the minimisation over the earlier changepoints will give us the value F($\tau^*$) for some $\tau^*$ < t.
+
+Then we have following:
+
+&nbsp;
+&nbsp;
+
+F(t) = $min_{\tau, k}\sum_{j=0}^{k}[C(y_{\tau_j + 1: \tau_{j+1}}) + \beta] - \beta$
+
+&nbsp;
+&nbsp;
+
+where 'C' denotes the cost function which is square error loss in this case
+
+&nbsp;
+&nbsp;
+
+=> F(t) = $min_{\tau, k}\sum_{j=0}^{k - 1}[C(y_{\tau_j + 1: \tau_{j+1}}) + C(y_{\tau_k + 1}: t) + \beta] - \beta$
+
+=> F(t) = $min_{\tau^{*}}(min_{\tau, k^{'}}\sum_{j=0}^{k^{'}}[C(y_{\tau_j + 1: \tau_{j+1}}) + \beta] - \beta + C(y_{\tau^*+1:t}) + \beta)$
+
+=> F(t) = $min_{\tau^*}(F(\tau^*) + C(y_{\tau^*+1:t}) + \beta)$
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+Hence, we obtain a simple recursion for the F(t) values
+
+&nbsp;
+&nbsp;
+
+F(t) = $min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$
+
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+
+Next, we will use neuroblastoma data set to compare the run times of opart with Fpop and cpt.mean.
 
 ```{r}
 data(neuroblastoma, package="neuroblastoma")
@@ -35,15 +78,18 @@ opart_gaussian(selectedData$logratio, 1)$end.vec
 Using microbenchmark to compare run times we get:
 
 ```{r}
-selected_ids = unique(neuroblastoma$profiles$profile.id)
-selected_data = neuroblastoma$profiles
-num_tests = length(selected_ids)
-timing_list = list()
-n = 1
-while(n <= 50){
-  current_id = selected_ids[n]
-  current_data = subset(selected_data, profile.id == current_id)
+selected_ids <- unique(neuroblastoma$profiles$profile.id)
+profile_ids_vec <- head(selected_ids, 50)
+selected_data <- neuroblastoma$profiles
+num_tests <- length(selected_ids)
+
+timing_list <- list() #for storing the results of microbenchmark
+i = 1 #for indexing elements of the timing list
+
+for(profile_id in profile_ids_vec){
+  current_data = subset(selected_data, profile.id == profile_id)
   length = length(current_data$logratio)
+  
   timing = microbenchmark(
   "fpop"={
       Fpop(current_data$logratio, 1)
@@ -55,9 +101,8 @@ while(n <= 50){
         opart_gaussian(current_data$logratio, 1)
     }, times=5)
   
-  
-  timing_list[[paste(n)]] = data.table(length, timing)
-  n = n + 1
+  timing_list[[paste(i)]] = data.table(length, timing)
+  i = i + 1
 }
 
 timing.dt = do.call(rbind, timing_list)
