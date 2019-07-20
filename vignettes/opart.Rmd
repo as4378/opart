@@ -14,12 +14,14 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(warn=-1)
 library(opart)
 library(microbenchmark)
 library(data.table)
 library(directlabels)
 library(ggplot2)
-library(fpop)
+if(requireNamespace("fpop"))
+  library(fpop)
 library(changepoint)
 ```
 
@@ -66,7 +68,7 @@ F(t) = $min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$
 &nbsp;
 &nbsp;
 
-Next, we will use neuroblastoma data set to compare the run times of opart with Fpop and cpt.mean.
+Next, we will use neuroblastoma data set to compare the run times of opart with fpop and cpt.mean.
 
 ```{r}
 data(neuroblastoma, package="neuroblastoma")
@@ -108,7 +110,7 @@ for(profile_id in profile_ids_vec){
 timing.dt = do.call(rbind, timing_list)
 ```
 
-```{r fig.height = 5, fig.width = 10}
+```{r message = FALSE, fig.height = 5, fig.width = 10}
 
 p <- ggplot(data = timing.dt, aes(x = log(timing.dt$length), 
                              y = log(timing.dt$time), 
