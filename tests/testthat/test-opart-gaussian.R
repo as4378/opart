@@ -3,6 +3,9 @@ context("opart-gaussian")
 library(opart)
 data(neuroblastoma, package="neuroblastoma")
 
+
+#tests for invalid scenarios
+
 test_that("opart gives error for negative penalty", {
   expect_error({
     opart_gaussian(c(1,2,3), -2)
@@ -18,6 +21,26 @@ test_that("opart gives error when data points are less than 1", {
   fixed=TRUE)
 })
 
+test_that("opart gives error when data vector has missing(NA) values", {
+  expect_error({
+    opart_gaussian(c(1,NA,2,3), 1)
+  }, "data vector has missing(NA) values",
+  fixed=TRUE)
+})
+
+test_that("opart gives error when data vector contains non-numeric values", {
+  expect_error({
+    opart_gaussian(c("a", "b", 1, 3), 1)
+  }, "data vector must contains finite numeric values",
+  fixed=TRUE)
+})
+
+test_that("opart gives error when data vector contains infinity", {
+  expect_error({
+    opart_gaussian(c(Inf, 1,2), 1)
+  }, "data vector must contains finite numeric values",
+  fixed=TRUE)
+})
 #test for zero penalty
 res <- opart_gaussian(c(1,2,3,4,5), 0)
 test_that("all the data points are segment ends", {
@@ -32,7 +55,7 @@ test_that("all the data points in one segment", {
 
 #test for large data
 res <- opart_gaussian(c(1:1000), 0)
-test_that("all the data points in one segment", {
+test_that("all the data points as segment ends", {
   expect_equal(res$end.vec, c(1:1000))
 })
 
