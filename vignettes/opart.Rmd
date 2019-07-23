@@ -19,8 +19,6 @@ library(microbenchmark)
 library(data.table)
 library(directlabels)
 library(ggplot2)
-if(requireNamespace("fpop"))
-  library(fpop)
 library(changepoint)
 ```
 
@@ -93,7 +91,8 @@ for(profile_id in profile_ids_vec){
   
   timing = microbenchmark(
   "fpop"={
-      Fpop(current_data$logratio, 1)
+    if(requireNamespace("fpop"))
+      fpop::Fpop(current_data$logratio, 1)
     },
   "cpt_mean"={
       cpt.mean(current_data$logratio, pen.value=1)
