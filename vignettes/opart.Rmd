@@ -22,6 +22,12 @@ library(ggplot2)
 library(changepoint)
 ```
 
+The content discussed in this vignette is inspired from [fpop paper](https://link.springer.com/article/10.1007/s11222-016-9636-3) (by Toby Hocking, Guillem Rigaill, Paul Fearnhead)
+
+&nbsp;
+
+**Introduction**
+
 There are several applications where we need to work with ordered data (e.g. Time-series, Financial data, climate data, bioinformatics etc.). This kind of data often experiences abrupt changes in structure known as changepoints or breakpoints. It is important to detect these changepoints or breakpoints in order to model the data effectively. 
 
 There are wide-range of approaches for detecting changepoints. The optimal partitioning algorithm implemented in this package belongs to class of approaches for detecting changepoints that can be formulated in terms of defining a cost function for segmentation. The optimal segments are can then be found by either minimising a penalised version of this cost (e.g. Yao [1988](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR25); Lee [1995](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR18)), which we call the penalised minimisation problem; or minimise the cost under a constraint on the number of changepoints(e.g. Yao and Au [1989](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR26); Braun and Muller [1998](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR5)), which we call the constrained minimisation problem. 
@@ -32,7 +38,7 @@ If the cost function depends on the data through a sum of segment-specific costs
 
 &nbsp;
 
-From the [fpop paper](https://link.springer.com/article/10.1007/s11222-016-9636-3) we can understand the idea behind optimal partitioning as follows:
+We can understand the idea behind optimal partitioning as follows:
 
 
 
@@ -75,7 +81,7 @@ F(t) = $min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$
 
 The segmentations themselves can be recovered by first taking the arguments which minimise this equation.
 
-$\tau^∗_t=\text{arg }min_{0≤τ<t}[F(τ)+C(y_{τ+1:t})+\beta],$
+$\tau^∗_t=\text{arg }min_{0≤τ<t}[F(τ)+C(y_{τ+1:t})+\beta]$
 
 which give the optimal location of the last changepoint in the segmentation of $y_{1:t}$.
 
@@ -87,7 +93,7 @@ $cp(t)=(cp(\tau^∗_t),\tau^∗_t)$
 
 &nbsp;
 
-As F(t) is calculated for time steps   t=1,2,…,n  and each time step involves a minimisation over $\tau$=0,1,…,t−1  the computation takes O($n^2$) time.
+As F(t) is calculated for time steps   t = 1,2,…,n  and each time step involves a minimisation over $\tau$ = 0,1,…,t−1  the computation takes O($n^2$) time.
 
 &nbsp;
 &nbsp;
@@ -161,8 +167,8 @@ timing.dt <- do.call(rbind, timing_list)
 
 ```{r message = FALSE, fig.height = 5, fig.width = 7}
 
-p <- ggplot(data = timing.dt, aes(x = (timing.dt$length), 
-                             y = (timing.dt$time), 
+p <- ggplot(data = timing.dt, aes(x = log(timing.dt$length), 
+                             y = log(timing.dt$time), 
                              col = timing.dt$expr))+
   geom_smooth() +
   labs(x="log(size)", y="log(time(ms))", col="method")
