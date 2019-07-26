@@ -57,7 +57,7 @@ opart_gaussian <- function(data, penalty) {
 
   #remove the columns used for internal calculations as they don't need to be displayed
   #result <- result[-c(5,6,8)]
-  result <- result[!(names(result) %in% c("sums","sums_sq","dp","positions"))]
+  result <- result[(names(result) %in% c("n_data","penalty","data.vec","cost.vec","end.vec"))]
 
   #display the result
   result
