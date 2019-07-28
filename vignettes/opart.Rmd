@@ -128,11 +128,11 @@ The 2 popular packages which implement these ideas are:
  
  **(i) opart_gaussian**: This function computes the optimal changepoint model for a vector of real-valued data and a non-negative real-valued penalty, given the square loss (to minimize) / gaussian likelihood (to maximize).
  
- *usage*: opart_gaussian(data.vec, penalty)
+ *usage: opart_gaussian(data.vec, penalty)*
  
- *data.vec* is the data vector on which optimal partitioning is to be performed.
+ *data.vec is the data vector on which optimal partitioning is to be performed.*
  
- *penalty* is any finite positive real valued number
+ *penalty is any finite positive real valued number*
 
 
 The output has following components:
