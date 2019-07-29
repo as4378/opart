@@ -19,14 +19,32 @@ library(microbenchmark)
 library(data.table)
 library(directlabels)
 library(ggplot2)
-if(requireNamespace("fpop"))
-  library(fpop)
 library(changepoint)
 ```
 
-The optimal partitioning algorithm is a class of approaches for detecting changepoints that can be formulated in terms of defining a cost function for segmentation ([fpop paper](https://link.springer.com/article/10.1007/s11222-016-9636-3)) .
+The content discussed in this vignette is inspired from [fpop paper](https://link.springer.com/article/10.1007/s11222-016-9636-3) (by Toby Hocking, Guillem Rigaill, Paul Fearnhead). This vignette summarizes the mathematics behind optimal partitioning algorithm in statistics and functions available in this package for solving the standard optimal partitioning problem.
 
-Consider segmenting the data $y_{1:t}$. Denote F(t) to be the minimum value of the penalised cost for segmenting such data and $\beta$ be the penalty due to changepoint, with   F(0)=$−\beta$ . The idea of Optimal Partitioning is to split the minimisation over segmentations into the minimisation over the position of the last changepoint, and then the minimisation over the earlier changepoints. We can then use the fact that the minimisation over the earlier changepoints will give us the value F($\tau^*$) for some $\tau^*$ < t.
+&nbsp;
+
+##Introduction
+
+There are several applications where we need to work with ordered data (e.g. Time-series, Financial data, climate data, bioinformatics etc.). This kind of data often experiences abrupt changes in structure known as changepoints or breakpoints. It is important to detect these changepoints or breakpoints in order to model the data effectively. 
+
+There are wide-range of approaches for detecting changepoints. The optimal partitioning algorithm implemented in this package belongs to class of approaches for detecting changepoints that can be formulated in terms of defining a cost function for segmentation. The optimal segments are can then be found by either minimising a penalised version of this cost (e.g. Yao [1988](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR25); Lee [1995](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR18)), which we call the penalised minimisation problem; or minimise the cost under a constraint on the number of changepoints(e.g. Yao and Au [1989](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR26); Braun and Muller [1998](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR5)), which we call the constrained minimisation problem. 
+
+&nbsp;
+
+If the cost function depends on the data through a sum of segment-specific costs then the minimisation can be done exactly using dynamic programming (Auger and Lawrence [1989](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR3); Jackson et al. [2005](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR14)) which is of atleast quadratic time complexity. The optimal partitioning algorithm implemented in this package uses this approach as our goal here is to provide an efficient C/C++ reference implementation to the standard Optimal Partitioning algorithm which can be modfied easily to develop other changepoint models.
+
+&nbsp;
+
+We can understand the idea behind optimal partitioning as follows:
+
+
+
+Let **y** = $(y_{1},...,y_{n})$ denote the data segment. Then for $t \ge s$, the set of observations from time s to t is denoted as $y_{s:t} = (y_{s},..,y_{t})$.
+
+Now, consider segmenting the data $y_{1:t}$. Denote F(t) to be the minimum value of the penalised cost for segmenting such data and $\beta$ be the penalty due to changepoint, with   F(0)=$−\beta$ . The idea of Optimal Partitioning is to split the minimisation over segmentations into the minimisation over the position of the last changepoint, and then the minimisation over the earlier changepoints. We can then use the fact that the minimisation over the earlier changepoints will give us the value F($\tau^*$) for some $\tau^*$ < t.
 
 Then we have following:
 
@@ -61,26 +79,97 @@ Hence, we obtain a simple recursion for the F(t) values
 
 F(t) = $min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$
 
+&nbsp;
+
+The segmentations themselves can be recovered by first taking the arguments which minimise this equation.
+
+$\tau^∗_t=\text{arg }min_{0≤τ<t}[F(τ)+C(y_{τ+1:t})+\beta]$
+
+which give the optimal location of the last changepoint in the segmentation of $y_{1:t}$.
+
+&nbsp;
+
+If we denote the vector of ordered changepoints in the optimal segmentation of $y_{1:t}$ by cp(t), with $cp(0)=\phi$ , then the optimal changepoints up to a time t can be calculated recursively
+
+$cp(t)=(cp(\tau^∗_t),\tau^∗_t)$
+
+&nbsp;
+
+As F(t) is calculated for time steps   t = 1,2,…,n  and each time step involves a minimisation over $\tau$ = 0,1,…,t−1  the computation takes O($n^2$) time.
 
 &nbsp;
 &nbsp;
 &nbsp;
 &nbsp;
 
-Next, we will use neuroblastoma data set to compare the run times of opart with fpop and cpt.mean.
+
+##Related Work
+
+There are many other R packages that compute optimal changepoint models. Since the standard Optimal Partitioning algorithm is quadratic in time complexity it is prohibitive for large data applications. There are several ways to spped-up the dynamic programming algorithms including the pruning of the solution space (e.g. Killick et al. [2012](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR16) and Rigaill [2010](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR22)). 
+
+&nbsp;
+
+The 2 popular packages which implement these ideas are:
+
+
+**(i) changepoint**: provides the cpt.mean and other functions which compute the optimal solution to the penalized problem via the PELT algorithm, which is log-linear time complexity.
+
+
+
+**(ii) Fpop::fpop**: computes the optimal solution to the penalized problem via the FPOP algorithm, which is also log-linear time complexity.
+
+&nbsp;
+&nbsp;
+
+
+##Programming with opart
+ 
+ This package provides 2 functions:
+ 
+ **(i) opart_gaussian**: This function computes the optimal changepoint model for a vector of real-valued data and a non-negative real-valued penalty, given the square loss (to minimize) / gaussian likelihood (to maximize).
+ 
+ *usage: opart_gaussian(data.vec, penalty)*
+ 
+ *data.vec is the data vector on which optimal partitioning is to be performed.*
+ 
+ *penalty is any finite positive real valued number*
+
+
+The output has following components:
+
+
+* n_data is the number of observations in input data vector.
+
+* data.vec is a pointer to the input data values.
+
+* penalty is the non-negative penalty constant.
+
+* cost.vec is a pointer to the optimal cost values of the best models from 1 to n_data.
+
+* end.vec is a pointer to the optimal segment ends
+
+
+The following code shows the basic usage on neuroblastoma data set with log ratio values of a patient with profile id = 1 for one chromosome as data.vec and penalty equals 1. 
+
 
 ```{r}
 data(neuroblastoma, package="neuroblastoma")
 selectedData <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
-opart_gaussian(selectedData$logratio, 1)$end.vec
+opart_gaussian(selectedData$logratio, 1)
 ```
+
+
+##Runtime Comparison
+
+
+Next, we will use neuroblastoma data set to compare the run times of opart with fpop and cpt.mean.
 
 
 Using microbenchmark to compare run times we get:
 
 ```{r}
 selected_ids <- unique(neuroblastoma$profiles$profile.id)
-profile_ids_vec <- head(selected_ids, 50)
+profile_ids_vec <- head(selected_ids, 100)
 selected_data <- neuroblastoma$profiles
 num_tests <- length(selected_ids)
 
@@ -89,11 +178,11 @@ i = 1 #for indexing elements of the timing list
 
 for(profile_id in profile_ids_vec){
   current_data = subset(selected_data, profile.id == profile_id)
-  length = length(current_data$logratio)
-  
-  timing = microbenchmark(
+  length <- length(current_data$logratio)
+  timing <- microbenchmark(
   "fpop"={
-      Fpop(current_data$logratio, 1)
+    if(requireNamespace("fpop"))
+      fpop::Fpop(current_data$logratio, 1)
     },
   "cpt_mean"={
       cpt.mean(current_data$logratio, pen.value=1)
@@ -102,11 +191,11 @@ for(profile_id in profile_ids_vec){
         opart_gaussian(current_data$logratio, 1)
     }, times=5)
   
-  timing_list[[paste(i)]] = data.table(length, timing)
+  timing_list[[paste(i)]] <- data.table(length, timing)
   i = i + 1
 }
 
-timing.dt = do.call(rbind, timing_list)
+timing.dt <- do.call(rbind, timing_list)
 ```
 
 ```{r message = FALSE, fig.height = 5, fig.width = 7}
