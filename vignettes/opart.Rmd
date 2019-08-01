@@ -140,13 +140,13 @@ The output has following components:
 
 * n_data is the number of observations in input data vector.
 
-* data.vec is a pointer to the input data values.
+* data.vec is a vector of input data values.
 
 * penalty is the non-negative penalty constant.
 
-* cost.vec is a pointer to the optimal cost values of the best models from 1 to n_data.
+* cost.vec is a vector of optimal cost values of the best models from 1 to n_data.
 
-* end.vec is a pointer to the optimal segment ends
+* end.vec is a vector of optimal segment ends
 
 
 The following code shows the basic usage on neuroblastoma data set with log ratio values of a patient with profile id = 1 for one chromosome as data.vec and penalty equals 1. 
