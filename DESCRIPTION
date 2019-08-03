@@ -28,6 +28,5 @@ Suggests:
     covr,
     neuroblastoma,
     microbenchmark,
-    fpop, 
     changepoint
 VignetteBuilder: knitr
