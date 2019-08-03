@@ -89,7 +89,7 @@ which give the optimal location of the last changepoint in the segmentation of $
 
 &nbsp;
 
-If we denote the vector of ordered changepoints in the optimal segmentation of $y_{1:t}$ by cp(t), with $cp(0)=\phi$ , then the optimal changepoints up to a time t can be calculated recursively
+If we denote the vector of ordered changepoints in the optimal segmentation of $y_{1:t}$ by cp(t), with $cp(0)=\phi$ , then the optimal changepoints up to a time t can be calculated recursively.
 
 $cp(t)=(cp(\tau^∗_t),\tau^∗_t)$
 
