@@ -184,7 +184,7 @@ timing.dt$time <- timing.dt$time * (10^(-9))
 
 ```{r message = FALSE, fig.height = 5, fig.width = 7}
 
-p <- ggplot(data = timing.dt, aes(x = size,y = log10(time), 
+p <- ggplot(data = timing.dt, aes(x = log10(size),y = log10(time), 
                                   label=rownames(timing.dt),
                                   col = expr))+
 
@@ -194,8 +194,11 @@ labs(x="size of data vector", y="log(time(s))", col="method")+
   
 geom_hline(yintercept=log10(1), color="yellow", linetype = "dashed")+ 
 geom_hline(yintercept=log10(60), color="green", linetype = "dashed")+
-annotate(geom="text", x=2900, y=log10(60), label="1 minute")+
-annotate(geom="text", x=2900, y=log10(1), label="1 second")
+geom_hline(yintercept=log10(3600), color="orange", linetype = "dashed")+
+annotate(geom="label", x=log10(2900), y=log10(60), label="1 minute")+
+annotate(geom="label", x=log10(2900), y=log10(1), label="1 second")+
+annotate(geom="label", x=log10(2900), y=log10(3600), label="1 hour")
+
 direct.label(p, "angled.boxes")
 ```
 
