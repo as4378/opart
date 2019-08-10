@@ -134,7 +134,7 @@ The following code shows the basic usage on neuroblastoma data set with log rati
 ```{r}
 data(neuroblastoma, package="neuroblastoma")
 selectedData <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
-result <- opart_gaussian(selectedData$logratio, 1)
+result <- opart::opart_gaussian(selectedData$logratio, 1)
 str(result)
 ```
 
@@ -184,7 +184,7 @@ timing.dt$time <- timing.dt$time * (10^(-9))
 
 ```{r message = FALSE, fig.height = 5, fig.width = 7}
 
-p <- ggplot(data = timing.dt, aes(x = log10(size),y = log10(time), 
+p <- ggplot(data = timing.dt, aes(x = size,y = log10(time), 
                                   label=rownames(timing.dt),
                                   col = expr))+
 
