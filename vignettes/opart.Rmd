@@ -1,13 +1,7 @@
----
-title: "Optimal Partitioning"
-#author: "Anuraag Srivastava"
-#date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{opart}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Spatial correlation}
+-->
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -22,11 +16,13 @@ library(ggplot2)
 library(changepoint)
 ```
 
+## Optimal Partitioning
+
 The content discussed in this vignette is inspired from [fpop paper](https://link.springer.com/article/10.1007/s11222-016-9636-3) (by Toby Hocking, Guillem Rigaill, Paul Fearnhead). This vignette summarizes the mathematics behind optimal partitioning algorithm in statistics and functions available in this package for solving the standard optimal partitioning problem.
 
 &nbsp;
 
-##Introduction
+## Introduction
 
 There are several applications where we need to work with ordered data (e.g. Time-series, Financial data, climate data, bioinformatics etc.). This kind of data often experiences abrupt changes in structure known as changepoints or breakpoints. It is important to detect these changepoints or breakpoints in order to model the data effectively. 
 
@@ -49,16 +45,13 @@ Now, consider segmenting the data $y_{1:t}$. Denote F(t) to be the minimum value
 Then we have following:
 
 &nbsp;
-&nbsp;
 
 F(t) = $min_{\tau, k}\sum_{j=0}^{k}[C(y_{\tau_j + 1: \tau_{j+1}}) + \beta] - \beta$
 
 &nbsp;
-&nbsp;
 
 where 'C' denotes the cost function which is square error loss in this case
 
-&nbsp;
 &nbsp;
 
 => F(t) = $min_{\tau, k}\sum_{j=0}^{k - 1}[C(y_{\tau_j + 1: \tau_{j+1}}) + C(y_{\tau_k + 1}: t) + \beta] - \beta$
@@ -68,13 +61,9 @@ where 'C' denotes the cost function which is square error loss in this case
 => F(t) = $min_{\tau^*}(F(\tau^*) + C(y_{\tau^*+1:t}) + \beta)$
 
 &nbsp;
-&nbsp;
-&nbsp;
-&nbsp;
 
 Hence, we obtain a simple recursion for the F(t) values
 
-&nbsp;
 &nbsp;
 
 F(t) = $min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$
@@ -98,12 +87,9 @@ $cp(t)=(cp(\tau^∗_t),\tau^∗_t)$
 As F(t) is calculated for time steps   t = 1,2,…,n  and each time step involves a minimisation over $\tau$ = 0,1,…,t−1  the computation takes O($n^2$) time.
 
 &nbsp;
-&nbsp;
-&nbsp;
-&nbsp;
 
 
-##Related Work
+## Related Work
 
 There are many other R packages that compute optimal changepoint models. Since the standard Optimal Partitioning algorithm is quadratic in time complexity it is prohibitive for large data applications. There are several ways to spped-up the dynamic programming algorithms including the pruning of the solution space (e.g. Killick et al. [2012](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR16) and Rigaill [2010](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR22)). 
 
@@ -119,10 +105,9 @@ The 2 popular packages which implement these ideas are:
 **(ii) Fpop::fpop**: computes the optimal solution to the penalized problem via the FPOP algorithm, which is also log-linear time complexity.
 
 &nbsp;
-&nbsp;
 
 
-##Programming with opart
+## Programming with opart
  
  This package provides 2 functions:
  
@@ -138,16 +123,13 @@ The 2 popular packages which implement these ideas are:
 The output has following components:
 
 
-* n_data is the number of observations in input data vector.
+* cost.vec is a vector of optimal cost values of the best models from 1 to n_data.
 
-* data.vec is a pointer to the input data values.
+* end.vec is a vector of optimal segment ends
 
-* penalty is the non-negative penalty constant.
+Using neuroblastoma dataset in which normalized copy number profiles are available as profiles data frame and the breakpoint annotations are available as annotations data frame from patients with Tumors at the Institut Curie.
 
-* cost.vec is a pointer to the optimal cost values of the best models from 1 to n_data.
-
-* end.vec is a pointer to the optimal segment ends
-
+profiles$logratio is the normalized logratio of the probe which is proportional to copy number which we will use to find optimal segments.
 
 The following code shows the basic usage on neuroblastoma data set with log ratio values of a patient with profile id = 1 for one chromosome as data.vec and penalty equals 1. 
 
@@ -155,11 +137,65 @@ The following code shows the basic usage on neuroblastoma data set with log rati
 ```{r}
 data(neuroblastoma, package="neuroblastoma")
 selectedData <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
-opart_gaussian(selectedData$logratio, 1)
+result <- opart::opart_gaussian(selectedData$logratio, 1)
+str(result)
+```
+
+&nbsp;
+
+## Model comparison with fpop and cpt.mean
+
+Here we compare the model produced by opart for different profile ids in neuroblastoma data set and compare it to the model produced with fpop and cpt.mean. Since all the 3 algorithms use the same cost function we should get same segment ends. In other words the "end.vec" produced by opart should match with the corresponding vector of segment ends in fpop and cpt.mean.
+
+```{r message=FALSE, warning=FALSE}
+selected_ids <- unique(neuroblastoma$profiles$profile.id)
+profile_ids_vec <- head(selected_ids, 100)
+selected_data <- neuroblastoma$profiles
+
+#initializing lists for storing the results of 3 algorithms
+fpop_res <- list()
+opart_res <- list()
+cpt_res <- list()
+
+#counting the iterations
+iters <- 0
+
+for(profile_id in profile_ids_vec){
+  current_data = subset(selected_data, profile.id == profile_id)
+  if(requireNamespace("fpop", quietly = TRUE))
+      fpop_res <- fpop::Fpop(current_data$logratio, 1)
+  cpt_res <- cpt.mean(data = current_data$logratio, 
+                        penalty = "Manual", 
+                        method = "PELT", 
+                        pen.value=1)
+  opart_res <- opart_gaussian(current_data$logratio, 1)
+  
+  iters <- iters + 1
+  
+  if(!isTRUE(all.equal(fpop_res$t.est, opart_res$end.vec)) || 
+     !isTRUE(all.equal(cpt_res@cpts, opart_res$end.vec)))
+    break
+}
 ```
 
 
-##Runtime Comparison
+In the above code we use 100 profile ids from neuroblastoma dataset and run the 3 algorithms on the logratio values. We also maintain "iters" variable to count how many times we successfully run each iteration. In the "if" condition at the bottom of the loop we check if the segment ends differ and break from the loop. Therefore, if all the segment ends of opart matches with fpop and cpt.mean then "iters" should be 10 after exiting the for loop.
+
+
+Checking the value of "iters" we get:
+
+
+```{r}
+iters
+```
+
+
+Since, we get 100 it means that all the models produced by opart matches with fpop and cpt.mean.
+
+
+&nbsp;
+
+## Runtime Comparison
 
 
 Next, we will use neuroblastoma data set to compare the run times of opart with fpop and cpt.mean.
@@ -168,45 +204,110 @@ Next, we will use neuroblastoma data set to compare the run times of opart with 
 Using microbenchmark to compare run times we get:
 
 ```{r}
-selected_ids <- unique(neuroblastoma$profiles$profile.id)
-profile_ids_vec <- head(selected_ids, 100)
-selected_data <- neuroblastoma$profiles
-num_tests <- length(selected_ids)
-
 timing_list <- list() #for storing the results of microbenchmark
-i = 1 #for indexing elements of the timing list
 
 for(profile_id in profile_ids_vec){
   current_data = subset(selected_data, profile.id == profile_id)
-  length <- length(current_data$logratio)
+  size <- length(current_data$logratio)
   timing <- microbenchmark(
   "fpop"={
-    if(requireNamespace("fpop"))
+    if(requireNamespace("fpop", quietly = TRUE))
       fpop::Fpop(current_data$logratio, 1)
     },
   "cpt_mean"={
-      cpt.mean(current_data$logratio, pen.value=1)
+      cpt.mean(data = current_data$logratio, penalty = "Manual", method = "PELT", pen.value=1)
     },
    "opart_gaussian"={
         opart_gaussian(current_data$logratio, 1)
     }, times=5)
-  
-  timing_list[[paste(i)]] <- data.table(length, timing)
-  i = i + 1
+  timing_list[[paste(profile_id)]] <- data.table(size, timing)
 }
 
 timing.dt <- do.call(rbind, timing_list)
 ```
 
+Now, since microbenchmark uses nano-seconds for measuring time we will convert this to seconds for more interpretable plot.
+
+```{r}
+timing.dt$time <- timing.dt$time * (10^(-9))
+```
+
 ```{r message = FALSE, fig.height = 5, fig.width = 7}
 
-p <- ggplot(data = timing.dt, aes(x = log(timing.dt$length), 
-                             y = log(timing.dt$time), 
-                             col = timing.dt$expr))+
-  geom_smooth() +
-  labs(x="log(size)", y="log(time(ms))", col="method")
+p <- ggplot(data = timing.dt, aes(x = log10(size),y = log10(time),
+                                  col = expr))+
+
+geom_smooth(se=F)+
+#scale_x_log10() + scale_y_log10() +
+labs(x="size of data vector on log scale", y="time(s) on log scale", col="method")+
+  
+geom_hline(yintercept=log10(1), color="yellow", linetype = "dashed")+ 
+geom_hline(yintercept=log10(60), color="green", linetype = "dashed")+
+geom_hline(yintercept=log10(3600), color="orange", linetype = "dashed")+
+annotate(geom="label", x=log10(2900), y=log10(60), label="1 minute")+
+annotate(geom="label", x=log10(2900), y=log10(1), label="1 second")+
+annotate(geom="label", x=log10(2900), y=log10(3600), label="1 hour")
 
 direct.label(p, "angled.boxes")
 ```
 
 Since, both fpop and cpt.mean uses pruning methods to optimize the runtime which is O(n log n) in complexity we can see that both these algorithms take less time compared to opart_gaussian which is quadratic in time complexity.
+
+
+&nbsp;
+
+## Runtime vs Penalty
+
+In this section we will analyze how the runtime varies with increasing penalty values. For this purpose we will use data from neuroblastoma dataset with profile.id = 1 and chromosome number 1 and compare runtimes of opart_gaussian with fpop and cpt.mean for penalty values upto 100.
+
+```{r}
+timing_list <- list() #for storing the results of microbenchmark
+selected_data <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
+  
+for(beta in 1:100){
+  timing <- microbenchmark(
+  "fpop"={
+    if(requireNamespace("fpop", quietly = TRUE))
+      fpop::Fpop(selected_data$logratio, beta)
+    },
+  "cpt_mean"={
+      cpt.mean(data = selected_data$logratio, penalty = "Manual", 
+               method = "PELT", pen.value=beta)
+    },
+   "opart_gaussian"={
+        opart_gaussian(selected_data$logratio, beta)
+    }, times=5)
+  
+  timing_list[[paste(beta)]] <- data.table(beta, timing)
+}
+
+penalty_timing <- do.call(rbind, timing_list)
+
+```
+
+
+Converting the time values from nano-seconds to seconds we get:
+
+```{r}
+penalty_timing$time <- penalty_timing$time * (10^(-9))
+```
+
+Plotting these results we get:
+
+```{r message = FALSE, fig.height = 5, fig.width = 7}
+p <- ggplot(data = penalty_timing, aes(x = beta,y = time,
+                                  col = expr))+
+
+geom_smooth(se=F)+
+#scale_x_log10() + scale_y_log10() +
+labs(x="penalty", y="time(s)", col="method")
+  
+#geom_hline(yintercept=0, color="yellow", linetype = "dashed")+ 
+#geom_hline(yintercept=60, color="green", linetype = "dashed")+
+#geom_hline(yintercept=3600, color="orange", linetype = "dashed")+
+#annotate(geom="label", x=2, y=60, label="1 minute")+
+#annotate(geom="label", x=2, y=0, label="1 second")
+#annotate(geom="label", x=2, y=3600, label="1 hour")
+
+direct.label(p, "angled.boxes")
+```

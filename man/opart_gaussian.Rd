@@ -9,12 +9,12 @@ given the square loss (to minimize) / gaussian likelihood (to maximize)}
 opart_gaussian(data, penalty)
 }
 \arguments{
-\item{data}{A list of numbers for which the changepoint model is to be computed}
+\item{data}{A numerical vector for which the changepoint model is to be computed}
 
 \item{penalty}{A non-negative real number indicating penalty parameter}
 }
 \value{
-An error status code with a pointer to the optimal cost values and a pointer to the optimal segment ends
+A vector of the optimal cost values and a vector of the optimal segment ends
 }
 \description{
 compute the optimal changepoint model for a vector of real-valued data
@@ -22,6 +22,7 @@ and a non-negative real-valued penalty,
 given the square loss (to minimize) / gaussian likelihood (to maximize)
 }
 \examples{
-opart_gaussian(c(1,2,3), 1)
-opart_gaussian(c(1,2,3,4), 2)
+data(neuroblastoma, package="neuroblastoma")
+selectedData <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
+opart::opart_gaussian(selectedData$logratio, 1)
 }
