@@ -2,12 +2,13 @@
 #' and a non-negative real-valued penalty,
 #' given the square loss (to minimize) / gaussian likelihood (to maximize)
 #'
-#' @param data A list of numbers for which the changepoint model is to be computed
+#' @param data A numerical vector for which the changepoint model is to be computed
 #' @param penalty A non-negative real number indicating penalty parameter
-#' @return An error status code with a pointer to the optimal cost values and a pointer to the optimal segment ends
+#' @return A vector of the optimal cost values and a vector of the optimal segment ends
 #' @examples
-#' opart_gaussian(c(1,2,3), 1)
-#' opart_gaussian(c(1,2,3,4), 2)
+#' data(neuroblastoma, package="neuroblastoma")
+#' selectedData <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
+#' opart::opart_gaussian(selectedData$logratio, 1)
 #' @export
 
 
@@ -44,7 +45,6 @@ opart_gaussian <- function(data, penalty) {
                penalty = as.double(penalty),
                cost.vec = double(length(data)),
                sums = double(length(data)),
-               sums_sq = double(length(data)),
                dp = double(length(data)),
                end.vec = integer(length(data)),
                positions = integer(length(data)),

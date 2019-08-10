@@ -1,16 +1,6 @@
 #include <stdlib.h>
 #include "opart_gaussian.h"
 
-//Utility function for storing cumulative sums squared
-void InitializeSqSums(const double* data, double* sums_sq, const int n_data){
-  double total = 0;
-  int x;
-  for(x = 0; x < n_data; x++){
-    sums_sq[x] = 0;
-    total += data[x] * data[x];
-    sums_sq[x] = total;
-  }
-}
 
 //Utility function for storing cumulative sums of given list of values
 void InitializeSums(const double* data, double* sums, const int n_data){
@@ -37,15 +27,10 @@ double GetMean(int initial, int final, double* sums){
 }
 
 //Utility function for getting cost of segment starting at "initial" and ending at "final"
-double GetSegmentCost(int initial, int final, double* sums, double* sums_sq){
+double GetSegmentCost(int initial, int final, double* sums){
   double mu = GetMean(initial, final, sums);
   int length = final - initial + 1;
   double total = mu * length;
-  double sq;
-  if(initial == 0)
-    sq = sums_sq[final];
-  else
-    sq = (sums_sq[final] - sums_sq[initial - 1]);
 
   return ((-2 * mu * total) + (length * mu * mu));
 }
@@ -58,7 +43,7 @@ double GetSegmentCost(int initial, int final, double* sums, double* sums_sq){
 //F(t) = min{F(s) + C(Ys+1:t) + B} for all 's' in [0,t) and 'B' is the penalty for segmentation
 //We calculate F(t) for each data-point 't' in the given dataset to get the optimal cost
 //F(0) = B
-void FindOptimalSegments(const double* data_points, double* sums, double* sums_sq, double* dp,
+void FindOptimalSegments(const double* data_points, double* sums, double* dp,
                          int* positions, const double beta, const int n_data){
 
   //loop variables
@@ -77,7 +62,7 @@ void FindOptimalSegments(const double* data_points, double* sums, double* sums_s
 
   //F(1) = F(0) + Cy1:1 + B
   //F(0) = B
-  dp[0] = -1*beta + GetSegmentCost(0, 0, sums, sums_sq) + beta;
+  dp[0] = -1*beta + GetSegmentCost(0, 0, sums) + beta;
   positions[0] = -1;
 
   //Calculate F(t) for all t in 'data_points'
@@ -86,10 +71,10 @@ void FindOptimalSegments(const double* data_points, double* sums, double* sums_s
     for(s = -1; s < t; s++){
       if(s == -1){
         //F(0) = B
-        f_tau = -1*beta + GetSegmentCost(s + 1, t, sums, sums_sq) + beta;
+        f_tau = -1*beta + GetSegmentCost(s + 1, t, sums) + beta;
       }
       else{
-        f_tau = dp[s] + GetSegmentCost(s + 1, t, sums, sums_sq) + beta;
+        f_tau = dp[s] + GetSegmentCost(s + 1, t, sums) + beta;
       }
 
       if(s == -1){
@@ -110,7 +95,7 @@ void FindOptimalSegments(const double* data_points, double* sums, double* sums_s
 
 //The interface function that gets called through R
 int opart_gaussian(const int n_data, const double *data_ptr, const double penalty,
-                   double *cost_ptr, double* sums, double* sums_sq, double* dp, int *end_ptr, int* positions){
+                   double *cost_ptr, double* sums, double* dp, int *end_ptr, int* positions){
 
   //test for boundary cases
   if(penalty < 0){
@@ -132,10 +117,8 @@ int opart_gaussian(const int n_data, const double *data_ptr, const double penalt
   //store cumulative sums for O(1) access to segment cost
   InitializeSums(data_ptr, sums, n_data);
 
-  //store cumulative squared sums for O(1) access to segment cost
-  InitializeSqSums(data_ptr, sums_sq, n_data);
   //Compute optimal cost values and segment ends
-  FindOptimalSegments(data_ptr, sums, sums_sq, dp, positions, penalty, n_data);
+  FindOptimalSegments(data_ptr, sums, dp, positions, penalty, n_data);
 
   //Copy the optimal cost values to cost_ptr for return
   for(i = 0; i < n_data; i++){

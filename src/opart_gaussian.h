@@ -3,4 +3,4 @@
 
 int opart_gaussian
 (const int n_data, const double *data_ptr, const double penalty, double *cost_ptr,
- double* sums, double* sums_sq, double* dp, int *end_ptr, int* positions);
+ double* sums, double* dp, int *end_ptr, int* positions);
