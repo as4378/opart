@@ -38,6 +38,15 @@ opart_poisson <- function(data, penalty) {
     stop("penalty must be a finite numeric value")
   }
 
+  #check if penalty if non-negative
+  if(penalty < 0){
+    stop("penalty value must be greater than or equal to 0")
+  }
+
+  #check if data vector has all integer values
+  if(!all(data == floor(data))){
+    stop("data vector must contain integer values")
+  }
   result <- .C("opart_poisson_interface",
                n_data = as.integer(length(data)),
                data.vec = as.double(data),

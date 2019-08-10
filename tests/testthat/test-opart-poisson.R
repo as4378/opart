@@ -9,12 +9,12 @@ data(neuroblastoma, package="neuroblastoma")
 test_that("opart gives error for negative penalty", {
   expect_error({
     opart_poisson(c(1,2,3), -2)
-  }, "penalty value must be greater than 0",
+  }, "penalty value must be greater than or equal to 0",
   fixed=TRUE)
 })
 
 
-test_that("opart gives error when data points are less than 1", {
+test_that("opart gives error when number of elements in data vector are less than 1", {
   expect_error({
     opart_poisson(c(), 1)
   }, "data vector must have atleast one element",
@@ -27,6 +27,15 @@ test_that("opart gives error when data vector has missing(NA) values", {
   }, "data vector has missing(NA) values",
   fixed=TRUE)
 })
+
+
+test_that("opart gives error when data vector has non-integer values", {
+  expect_error({
+    opart_poisson(c(1.5,2.5,2.05,3.5), 1)
+  }, "data vector must contain integer values",
+  fixed=TRUE)
+})
+
 
 test_that("opart gives error when data vector contains non-numeric values", {
   expect_error({
@@ -79,9 +88,4 @@ test_that("all the data points in one segment", {
   expect_equal(res$end.vec, nrows)
 })
 
-#test for zero penalty
-res <- opart_poisson(selProfile$logratio, 0)
-#test_that("all the data points are segment ends", {
-#  expect_equal(nrow(as.data.frame(res$end.vec)), nrows - 2)
-#})
 
