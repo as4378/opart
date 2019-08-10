@@ -56,7 +56,7 @@ opart_gaussian <- function(data, penalty) {
   result$end.vec <- seg_ends[seg_ends != -2]
 
   #remove the columns used for internal calculations as they don't need to be displayed
-  result <- result[c("n_data","penalty","data.vec","cost.vec","end.vec")]
+  result <- result[c("cost.vec","end.vec")]
 
   #display the result
   result

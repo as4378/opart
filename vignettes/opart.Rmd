@@ -1,13 +1,7 @@
----
-title: "Optimal Partitioning"
-#author: "Anuraag Srivastava"
-#date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{opart}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Spatial correlation}
+-->
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -22,11 +16,13 @@ library(ggplot2)
 library(changepoint)
 ```
 
+## Optimal Partitioning
+
 The content discussed in this vignette is inspired from [fpop paper](https://link.springer.com/article/10.1007/s11222-016-9636-3) (by Toby Hocking, Guillem Rigaill, Paul Fearnhead). This vignette summarizes the mathematics behind optimal partitioning algorithm in statistics and functions available in this package for solving the standard optimal partitioning problem.
 
 &nbsp;
 
-##Introduction
+## Introduction
 
 There are several applications where we need to work with ordered data (e.g. Time-series, Financial data, climate data, bioinformatics etc.). This kind of data often experiences abrupt changes in structure known as changepoints or breakpoints. It is important to detect these changepoints or breakpoints in order to model the data effectively. 
 
@@ -49,16 +45,13 @@ Now, consider segmenting the data $y_{1:t}$. Denote F(t) to be the minimum value
 Then we have following:
 
 &nbsp;
-&nbsp;
 
 F(t) = $min_{\tau, k}\sum_{j=0}^{k}[C(y_{\tau_j + 1: \tau_{j+1}}) + \beta] - \beta$
 
 &nbsp;
-&nbsp;
 
 where 'C' denotes the cost function which is square error loss in this case
 
-&nbsp;
 &nbsp;
 
 => F(t) = $min_{\tau, k}\sum_{j=0}^{k - 1}[C(y_{\tau_j + 1: \tau_{j+1}}) + C(y_{\tau_k + 1}: t) + \beta] - \beta$
@@ -68,13 +61,9 @@ where 'C' denotes the cost function which is square error loss in this case
 => F(t) = $min_{\tau^*}(F(\tau^*) + C(y_{\tau^*+1:t}) + \beta)$
 
 &nbsp;
-&nbsp;
-&nbsp;
-&nbsp;
 
 Hence, we obtain a simple recursion for the F(t) values
 
-&nbsp;
 &nbsp;
 
 F(t) = $min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$
@@ -98,12 +87,9 @@ $cp(t)=(cp(\tau^∗_t),\tau^∗_t)$
 As F(t) is calculated for time steps   t = 1,2,…,n  and each time step involves a minimisation over $\tau$ = 0,1,…,t−1  the computation takes O($n^2$) time.
 
 &nbsp;
-&nbsp;
-&nbsp;
-&nbsp;
 
 
-##Related Work
+## Related Work
 
 There are many other R packages that compute optimal changepoint models. Since the standard Optimal Partitioning algorithm is quadratic in time complexity it is prohibitive for large data applications. There are several ways to spped-up the dynamic programming algorithms including the pruning of the solution space (e.g. Killick et al. [2012](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR16) and Rigaill [2010](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR22)). 
 
@@ -119,10 +105,9 @@ The 2 popular packages which implement these ideas are:
 **(ii) Fpop::fpop**: computes the optimal solution to the penalized problem via the FPOP algorithm, which is also log-linear time complexity.
 
 &nbsp;
-&nbsp;
 
 
-##Programming with opart
+## Programming with opart
  
  This package provides 2 functions:
  
@@ -138,12 +123,6 @@ The 2 popular packages which implement these ideas are:
 The output has following components:
 
 
-* n_data is the number of observations in input data vector.
-
-* data.vec is a vector of input data values.
-
-* penalty is the non-negative penalty constant.
-
 * cost.vec is a vector of optimal cost values of the best models from 1 to n_data.
 
 * end.vec is a vector of optimal segment ends
@@ -155,11 +134,13 @@ The following code shows the basic usage on neuroblastoma data set with log rati
 ```{r}
 data(neuroblastoma, package="neuroblastoma")
 selectedData <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
-opart_gaussian(selectedData$logratio, 1)
+result <- opart_gaussian(selectedData$logratio, 1)
+str(result)
 ```
 
+&nbsp;
 
-##Runtime Comparison
+## Runtime Comparison
 
 
 Next, we will use neuroblastoma data set to compare the run times of opart with fpop and cpt.mean.
@@ -174,38 +155,47 @@ selected_data <- neuroblastoma$profiles
 num_tests <- length(selected_ids)
 
 timing_list <- list() #for storing the results of microbenchmark
-i = 1 #for indexing elements of the timing list
 
 for(profile_id in profile_ids_vec){
   current_data = subset(selected_data, profile.id == profile_id)
-  length <- length(current_data$logratio)
+  size <- length(current_data$logratio)
   timing <- microbenchmark(
   "fpop"={
-    if(requireNamespace("fpop"))
+    if(requireNamespace("fpop", quietly = TRUE))
       fpop::Fpop(current_data$logratio, 1)
     },
   "cpt_mean"={
-      cpt.mean(current_data$logratio, pen.value=1)
+      cpt.mean(data = current_data$logratio, penalty = "Manual", method = "PELT", pen.value=1)
     },
    "opart_gaussian"={
         opart_gaussian(current_data$logratio, 1)
     }, times=5)
-  
-  timing_list[[paste(i)]] <- data.table(length, timing)
-  i = i + 1
+  timing_list[[paste(profile_id)]] <- data.table(size, timing)
 }
 
 timing.dt <- do.call(rbind, timing_list)
 ```
 
+Now, since microbenchmark uses nano-seconds for measuring time we will convert this to seconds for more interpretable plot.
+
+```{r}
+timing.dt$time <- timing.dt$time * (10^(-9))
+```
+
 ```{r message = FALSE, fig.height = 5, fig.width = 7}
 
-p <- ggplot(data = timing.dt, aes(x = log(timing.dt$length), 
-                             y = log(timing.dt$time), 
-                             col = timing.dt$expr))+
-  geom_smooth() +
-  labs(x="log(size)", y="log(time(ms))", col="method")
+p <- ggplot(data = timing.dt, aes(x = log10(size),y = log10(time), 
+                                  label=rownames(timing.dt),
+                                  col = expr))+
 
+geom_smooth(se=F)+
+#scale_x_log10() + scale_y_log10() +
+labs(x="size of data vector", y="log(time(s))", col="method")+
+  
+geom_hline(yintercept=log10(1), color="yellow", linetype = "dashed")+ 
+geom_hline(yintercept=log10(60), color="green", linetype = "dashed")+
+annotate(geom="text", x=2900, y=log10(60), label="1 minute")+
+annotate(geom="text", x=2900, y=log10(1), label="1 second")
 direct.label(p, "angled.boxes")
 ```
 
