@@ -298,8 +298,7 @@ Plotting these results we get:
 p <- ggplot(data = penalty_timing, aes(x = beta,y = time,
                                   col = expr))+
 
-#geom_smooth(se=F)+
-  geom_line()+
+geom_smooth(se=F)+
 #scale_x_log10() + scale_y_log10() +
 labs(x="penalty", y="time(s)", col="method")
   
