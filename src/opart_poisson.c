@@ -31,7 +31,7 @@ double SampleMean(int initial, int final, double* sums){
 double GetPoissonLoss(int initial, int final, double* sums){
   int n = final - initial + 1;
   double lambda = SampleMean(initial, final, sums);
-  double sum = n * SampleMean(initial, final, sums);
+  double sum = n * lambda;
 
   double loss = (n * lambda) - (log(lambda) * sum);
 

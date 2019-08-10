@@ -77,15 +77,3 @@ test_that("cost vector should match manual calculation", {
 })
 
 
-#test for neuroblastoma data set with profile.id = 1 and chromosome = 1
-
-selProfile <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
-nrows <- nrow(selProfile)
-
-#test for large penalty
-res <- opart_poisson(selProfile$logratio, 10000000)
-test_that("all the data points in one segment", {
-  expect_equal(res$end.vec, nrows)
-})
-
-

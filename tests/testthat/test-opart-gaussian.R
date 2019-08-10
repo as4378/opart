@@ -85,20 +85,3 @@ test_that("all the data points are segment ends", {
   expect_equal(nrow(as.data.frame(res$end.vec)), nrows - 2)
 })
 
-
-#tests for opart_poisson
-
-test_that("opart gives error for negative penalty", {
-  expect_error({
-    opart_poisson(c(1,2,3), -2)
-  }, "penalty value must be greater than 0",
-  fixed=TRUE)
-})
-
-
-test_that("opart gives error when data points are less than 1", {
-  expect_error({
-    opart_poisson(c(), 1)
-  }, "data vector must have atleast one element",
-  fixed=TRUE)
-})
