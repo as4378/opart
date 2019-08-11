@@ -149,7 +149,7 @@ Here we compare the model produced by opart for different profile ids in neurobl
 
 ```{r message=FALSE, warning=FALSE}
 selected_ids <- unique(neuroblastoma$profiles$profile.id)
-profile_ids_vec <- head(selected_ids, 100)
+profile_ids_vec <- head(selected_ids, 50)
 selected_data <- neuroblastoma$profiles
 
 #initializing lists for storing the results of 3 algorithms
@@ -163,12 +163,12 @@ iters <- 0
 for(profile_id in profile_ids_vec){
   current_data = subset(selected_data, profile.id == profile_id)
   if(requireNamespace("fpop", quietly = TRUE))
-      fpop_res <- fpop::Fpop(current_data$logratio, 1)
+      fpop_res <- fpop::Fpop(current_data$logratio, iters + 1)
   cpt_res <- cpt.mean(data = current_data$logratio, 
                         penalty = "Manual", 
                         method = "PELT", 
-                        pen.value=1)
-  opart_res <- opart_gaussian(current_data$logratio, 1)
+                        pen.value=iters + 1)
+  opart_res <- opart_gaussian(current_data$logratio, iters + 1)
   
   iters <- iters + 1
   
@@ -179,7 +179,7 @@ for(profile_id in profile_ids_vec){
 ```
 
 
-In the above code we use 100 profile ids from neuroblastoma dataset and run the 3 algorithms on the logratio values. We also maintain "iters" variable to count how many times we successfully run each iteration. In the "if" condition at the bottom of the loop we check if the segment ends differ and break from the loop. Therefore, if all the segment ends of opart matches with fpop and cpt.mean then "iters" should be 10 after exiting the for loop.
+In the above code we use 50 profile ids from neuroblastoma dataset and run the 3 algorithms on the logratio values. We also maintain "iters" variable to count how many times we successfully run each iteration. In the "if" condition at the bottom of the loop we check if the segment ends differ and break from the loop. Therefore, if all the segment ends of opart matches with fpop and cpt.mean then "iters" should be 10 after exiting the for loop.
 
 
 Checking the value of "iters" we get:
@@ -190,7 +190,7 @@ iters
 ```
 
 
-Since, we get 100 it means that all the models produced by opart matches with fpop and cpt.mean.
+Since, we get 50 it means that all the models produced by opart matches with fpop and cpt.mean.
 
 
 &nbsp;
@@ -225,6 +225,7 @@ for(profile_id in profile_ids_vec){
 
 timing.dt <- do.call(rbind, timing_list)
 ```
+
 
 Now, since microbenchmark uses nano-seconds for measuring time we will convert this to seconds for more interpretable plot.
 
@@ -263,26 +264,30 @@ In this section we will analyze how the runtime varies with increasing penalty v
 ```{r}
 timing_list <- list() #for storing the results of microbenchmark
 selected_data <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
-  
+
 for(beta in 1:100){
   timing <- microbenchmark(
-  "fpop"={
-    if(requireNamespace("fpop", quietly = TRUE))
-      fpop::Fpop(selected_data$logratio, beta)
-    },
-  "cpt_mean"={
-      cpt.mean(data = selected_data$logratio, penalty = "Manual", 
-               method = "PELT", pen.value=beta)
-    },
-   "opart_gaussian"={
+    "opart_gaussian"={
         opart_gaussian(selected_data$logratio, beta)
-    }, times=5)
+    }, 
+    "fpop"={
+      if(requireNamespace("fpop", quietly = TRUE))
+        fpop::Fpop(selected_data$logratio, beta)
+    },
+    "cpt_mean"={
+       cpt.mean(data = selected_data$logratio, penalty = "Manual", 
+               method = "PELT", pen.value=beta)
+    },times=5)
+   
   
   timing_list[[paste(beta)]] <- data.table(beta, timing)
 }
 
 penalty_timing <- do.call(rbind, timing_list)
+```
 
+```{r include=FALSE}
+penalty_timing <- aggregate(time ~ expr + beta, as.data.frame(penalty_timing), mean)
 ```
 
 
@@ -292,6 +297,7 @@ Converting the time values from nano-seconds to seconds we get:
 penalty_timing$time <- penalty_timing$time * (10^(-9))
 ```
 
+
 Plotting these results we get:
 
 ```{r message = FALSE, fig.height = 5, fig.width = 7}
@@ -299,15 +305,7 @@ p <- ggplot(data = penalty_timing, aes(x = beta,y = time,
                                   col = expr))+
 
 geom_smooth(se=F)+
-#scale_x_log10() + scale_y_log10() +
 labs(x="penalty", y="time(s)", col="method")
   
-#geom_hline(yintercept=0, color="yellow", linetype = "dashed")+ 
-#geom_hline(yintercept=60, color="green", linetype = "dashed")+
-#geom_hline(yintercept=3600, color="orange", linetype = "dashed")+
-#annotate(geom="label", x=2, y=60, label="1 minute")+
-#annotate(geom="label", x=2, y=0, label="1 second")
-#annotate(geom="label", x=2, y=3600, label="1 hour")
-
 direct.label(p, "angled.boxes")
 ```
