@@ -47,6 +47,7 @@ opart_poisson <- function(data, penalty) {
   if(!all(data == floor(data))){
     stop("data vector must contain integer values")
   }
+
   result <- .C("opart_poisson_interface",
                n_data = as.integer(length(data)),
                data.vec = as.double(data),
@@ -64,8 +65,7 @@ opart_poisson <- function(data, penalty) {
   result$end.vec <- seg_ends[seg_ends != -2]
 
   #remove the columns used for internal calculations as they don't need to be displayed
-  #result <- result[-c(5,6,8)]
-  result <- result[!(names(result) %in% c("sums","dp","positions"))]
+  result <- result[c("cost.vec","end.vec")]
 
   #display the result
   result
