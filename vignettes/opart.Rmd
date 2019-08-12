@@ -235,19 +235,20 @@ timing.dt$time <- timing.dt$time * (10^(-9))
 
 ```{r message = FALSE, fig.height = 5, fig.width = 7}
 
-p <- ggplot(data = timing.dt, aes(x = log10(size),y = log10(time),
+p <- ggplot(data = timing.dt, aes(x = (size),y = (time),
                                   col = expr))+
 
 geom_smooth(se=F)+
-#scale_x_log10() + scale_y_log10() +
+
 labs(x="size of data vector on log scale", y="time(s) on log scale", col="method")+
   
-geom_hline(yintercept=log10(1), color="yellow", linetype = "dashed")+ 
-geom_hline(yintercept=log10(60), color="green", linetype = "dashed")+
-geom_hline(yintercept=log10(3600), color="orange", linetype = "dashed")+
-annotate(geom="label", x=log10(2900), y=log10(60), label="1 minute")+
-annotate(geom="label", x=log10(2900), y=log10(1), label="1 second")+
-annotate(geom="label", x=log10(2900), y=log10(3600), label="1 hour")
+geom_hline(yintercept=(1), color="yellow", linetype = "dashed")+ 
+geom_hline(yintercept=(60), color="green", linetype = "dashed")+
+geom_hline(yintercept=(3600), color="orange", linetype = "dashed")+
+annotate(geom="label", x=(2900), y=(60), label="1 minute")+
+annotate(geom="label", x=(2900), y=(1), label="1 second")+
+annotate(geom="label", x=(2900), y=(3600), label="1 hour")+
+scale_x_log10() + scale_y_log10() 
 
 direct.label(p, "angled.boxes")
 ```
