@@ -28,5 +28,6 @@ Suggests:
     covr,
     neuroblastoma,
     microbenchmark,
-    changepoint
+    changepoint,
+    Segmentor3IsBack
 VignetteBuilder: knitr
