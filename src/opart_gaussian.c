@@ -51,8 +51,8 @@ void FindOptimalSegments(const double* data_points, double* sums, double* dp,
 
   //temporary variables used in recursive function
   double f_tau;
-  double min;
-  int pos;
+  double min = 0;
+  int pos = -1;
 
 
   //initialize the positions with -2 in the positions vector as initially no data-point is segment end
