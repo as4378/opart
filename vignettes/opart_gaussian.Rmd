@@ -14,13 +14,13 @@ library(directlabels)
 library(ggplot2)
 ```
 
-## Optimal Partitioning
+### Optimal Partitioning
 
-The content discussed in this vignette is inspired from [fpop paper](https://link.springer.com/article/10.1007/s11222-016-9636-3) (by Toby Hocking, Guillem Rigaill, Paul Fearnhead). This vignette summarizes the mathematics behind optimal partitioning algorithm in statistics and functions available in this package for solving the standard optimal partitioning problem.
+The content discussed in this vignette is inspired from [fpop paper](https://link.springer.com/article/10.1007/s11222-016-9636-3) (by Toby Hocking, Guillem Rigaill, Paul Fearnhead). This vignette summarizes the mathematics behind optimal partitioning algorithm in statistics using square error loss / gaussian likelihood to maximize function and functions available in this package for solving the standard optimal partitioning problem using square error loss.
 
 &nbsp;
 
-## Introduction
+### Introduction
 
 There are several applications where we need to work with ordered data (e.g. Time-series, Financial data, climate data, bioinformatics etc.). This kind of data often experiences abrupt changes in structure known as changepoints or breakpoints. It is important to detect these changepoints or breakpoints in order to model the data effectively. 
 
@@ -43,20 +43,27 @@ Now, consider segmenting the data $y_{1:t}$. Denote F(t) to be the minimum value
 Then we have following:
 
 &nbsp;
-
-F(t) = $min_{\tau, k}\sum_{j=0}^{k}[C(y_{\tau_j + 1: \tau_{j+1}}) + \beta] - \beta$
-
+$$
+F(t) = \min_{\tau, k}\sum_{j=0}^{k}[C(y_{\tau_j + 1: \tau_{j+1}}) + \beta] - \beta 
+$$
 &nbsp;
 
 where 'C' denotes the cost function which is square error loss in this case
 
 &nbsp;
 
-=> F(t) = $min_{\tau, k}\sum_{j=0}^{k - 1}[C(y_{\tau_j + 1: \tau_{j+1}}) + C(y_{\tau_k + 1}: t) + \beta] - \beta$
 
-=> F(t) = $min_{\tau^{*}}(min_{\tau, k^{'}}\sum_{j=0}^{k^{'}}[C(y_{\tau_j + 1: \tau_{j+1}}) + \beta] - \beta + C(y_{\tau^*+1:t}) + \beta)$
+\begin{aligned}
 
-=> F(t) = $min_{\tau^*}(F(\tau^*) + C(y_{\tau^*+1:t}) + \beta)$
+F(t) &= \min_{\tau, k}\sum_{j=0}^{k - 1}[C(y_{\tau_j + 1: \tau_{j+1}}) + C(y_{\tau_k + 1}: t) + \beta] - \beta \\
+
+
+&= \min_{\tau^{*}}(\min_{\tau, k^{'}}\sum_{j=0}^{k^{'}}[C(y_{\tau_j + 1: \tau_{j+1}}) + \beta] - \beta + C(y_{\tau^*+1:t}) + \beta) \\
+
+&= \min_{\tau^*}(F(\tau^*) + C(y_{\tau^*+1:t}) + \beta)
+
+\end{aligned}
+
 
 &nbsp;
 
@@ -64,13 +71,13 @@ Hence, we obtain a simple recursion for the F(t) values
 
 &nbsp;
 
-F(t) = $min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$
+$$F(t) = \min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$$
 
 &nbsp;
 
 The segmentations themselves can be recovered by first taking the arguments which minimise this equation.
 
-$\tau^∗_t=\text{arg }min_{0≤τ<t}[F(τ)+C(y_{τ+1:t})+\beta]$
+$$\tau^∗_t=\min_{0≤τ<t}[F(τ)+C(y_{τ+1:t})+\beta]$$
 
 which give the optimal location of the last changepoint in the segmentation of $y_{1:t}$.
 
@@ -78,7 +85,7 @@ which give the optimal location of the last changepoint in the segmentation of $
 
 If we denote the vector of ordered changepoints in the optimal segmentation of $y_{1:t}$ by cp(t), with $cp(0)=\phi$ , then the optimal changepoints up to a time t can be calculated recursively.
 
-$cp(t)=(cp(\tau^∗_t),\tau^∗_t)$
+$$cp(t)=(cp(\tau^∗_t),\tau^∗_t)$$
 
 &nbsp;
 
@@ -87,9 +94,9 @@ As F(t) is calculated for time steps   t = 1,2,…,n  and each time step involve
 &nbsp;
 
 
-## Related Work
+### Related Work
 
-There are many other R packages that compute optimal changepoint models. Since the standard Optimal Partitioning algorithm is quadratic in time complexity it is prohibitive for large data applications. There are several ways to spped-up the dynamic programming algorithms including the pruning of the solution space (e.g. Killick et al. [2012](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR16) and Rigaill [2010](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR22)). 
+There are many other R packages that compute optimal changepoint models using square error loss function. Since the standard Optimal Partitioning algorithm is quadratic in time complexity it is prohibitive for large data applications. There are several ways to spped-up the dynamic programming algorithms including the pruning of the solution space (e.g. Killick et al. [2012](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR16) and Rigaill [2010](https://link.springer.com/article/10.1007/s11222-016-9636-3#CR22)). 
 
 &nbsp;
 
@@ -105,11 +112,11 @@ The 2 popular packages which implement these ideas are:
 &nbsp;
 
 
-## Programming with opart
+### Programming with opart
  
- This package provides 2 functions:
+ This package provides following function for optimal partitioning using square error loss:
  
- **(i) opart_gaussian**: This function computes the optimal changepoint model for a vector of real-valued data and a non-negative real-valued penalty, given the square loss (to minimize) / gaussian likelihood (to maximize).
+ **opart_gaussian**: This function computes the optimal changepoint model for a vector of real-valued data and a non-negative real-valued penalty, given the square loss (to minimize) / gaussian likelihood (to maximize).
  
  *usage: opart_gaussian(data.vec, penalty)*
  
@@ -141,13 +148,13 @@ str(result)
 
 &nbsp;
 
-## Model comparison with fpop and cpt.mean
+### Model comparison with fpop and cpt.mean
 
-Here we compare the model produced by opart for different profile ids in neuroblastoma data set and compare it to the model produced with fpop and cpt.mean. Since all the 3 algorithms use the same cost function we should get same segment ends. In other words the "end.vec" produced by opart should match with the corresponding vector of segment ends in fpop and cpt.mean.
+Here we compare the model produced by opart for different profile ids in neuroblastoma data set and compare it to the model produced with fpop and cpt.mean. Since all the 3 algorithms use the same cost function we should get same segment ends. In other words the "end.vec" produced by opart should match with the corresponding vector of segment ends in fpop and cpt.mean. We also vary penalty in each iteration.
 
 ```{r message=FALSE, warning=FALSE}
 selected_ids <- unique(neuroblastoma$profiles$profile.id)
-profile_ids_vec <- head(selected_ids, 50)
+profile_ids_vec <- head(selected_ids, 100)
 selected_data <- neuroblastoma$profiles
 
 #initializing lists for storing the results of 3 algorithms
@@ -168,6 +175,7 @@ for(profile_id in profile_ids_vec){
                         penalty = "Manual", 
                         method = "PELT", 
                         pen.value=iters + 1)
+  
   opart_res <- opart::opart_gaussian(current_data$logratio, iters + 1)
   
   iters <- iters + 1
@@ -195,7 +203,7 @@ Since, we get 50 it means that all the models produced by opart matches with fpo
 
 &nbsp;
 
-## Runtime Comparison
+### Runtime Comparison
 
 
 Next, we will use neuroblastoma data set to compare the run times of opart with fpop and cpt.mean.
@@ -258,7 +266,7 @@ Since, both fpop and cpt.mean uses pruning methods to optimize the runtime which
 
 &nbsp;
 
-## Runtime vs Penalty
+### Runtime vs Penalty
 
 In this section we will analyze how the runtime varies with increasing penalty values. For this purpose we will use data from neuroblastoma dataset with profile.id = 1 and chromosome number 1 and compare runtimes of opart_gaussian with fpop and cpt.mean for penalty values upto 100.
 
