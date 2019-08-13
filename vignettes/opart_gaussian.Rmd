@@ -1,6 +1,6 @@
 <!--
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Spatial correlation}
+%\VignetteIndexEntry{opart_gaussian}
 -->
 
 ```{r setup, include = FALSE}
@@ -154,7 +154,7 @@ Here we compare the model produced by opart for different profile ids in neurobl
 
 ```{r message=FALSE, warning=FALSE}
 selected_ids <- unique(neuroblastoma$profiles$profile.id)
-profile_ids_vec <- head(selected_ids, 100)
+profile_ids_vec <- head(selected_ids, 10)
 selected_data <- neuroblastoma$profiles
 
 #initializing lists for storing the results of 3 algorithms
@@ -243,20 +243,18 @@ timing.dt$time <- timing.dt$time * (10^(-9))
 
 ```{r message = FALSE, fig.height = 5, fig.width = 7}
 
+times <- c(1,60,3600)
+labels <- c("1 second", "1 minute", "1 hour")
+
 p <- ggplot(data = timing.dt, aes(x = (size),y = (time),
                                   col = expr))+
 
-geom_smooth(se=F)+
-
-labs(x="size of data vector on log scale", y="time(s) on log scale", col="method")+
+geom_smooth()+
+  geom_point()+
   
-geom_hline(yintercept=(1), color="yellow", linetype = "dashed")+ 
-geom_hline(yintercept=(60), color="green", linetype = "dashed")+
-geom_hline(yintercept=(3600), color="orange", linetype = "dashed")+
-annotate(geom="label", x=(2900), y=(60), label="1 minute")+
-annotate(geom="label", x=(2900), y=(1), label="1 second")+
-annotate(geom="label", x=(2900), y=(3600), label="1 hour")+
-scale_x_log10() + scale_y_log10() 
+geom_hline(yintercept=times, linetype = "dashed")+ 
+annotate(geom="label", x=(2900), y=times, label=labels)+
+scale_x_log10("size of data vector") + scale_y_log10("time(s)") 
 
 direct.label(p, "angled.boxes")
 ```
@@ -274,7 +272,7 @@ In this section we will analyze how the runtime varies with increasing penalty v
 timing_list <- list() #for storing the results of microbenchmark
 selected_data <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
 
-for(beta in 1:100){
+for(beta in 10^seq(1:10)){
   timing <- microbenchmark(
     "opart_gaussian"={
         opart::opart_gaussian(selected_data$logratio, beta)
@@ -295,10 +293,6 @@ for(beta in 1:100){
 penalty_timing <- do.call(rbind, timing_list)
 ```
 
-```{r include=FALSE}
-penalty_timing <- aggregate(time ~ expr + beta, as.data.frame(penalty_timing), mean)
-```
-
 
 Converting the time values from nano-seconds to seconds we get:
 
@@ -312,9 +306,8 @@ Plotting these results we get:
 ```{r message = FALSE, fig.height = 5, fig.width = 7}
 p <- ggplot(data = penalty_timing, aes(x = beta,y = time,
                                   col = expr))+
-
-geom_smooth(se=F)+
-labs(x="penalty", y="time(s)", col="method")
-  
+geom_point()+
+geom_smooth()+
+scale_x_log10("penalty") + scale_y_log10("time(s)")   
 direct.label(p, "angled.boxes")
 ```

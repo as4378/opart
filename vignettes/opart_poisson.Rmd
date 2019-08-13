@@ -1,6 +1,6 @@
 <!--
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Spatial correlation}
+%\VignetteIndexEntry{opart_poisson}
 -->
 
 ```{r setup, include = FALSE}
@@ -51,14 +51,15 @@ $$l(\lambda, x_{1},...,x_{n}) =  \sum_{i=1}^{n}[-\lambda - \log(x_{i}!) + x_{i}\
 
 To find the $\lambda$ value that maximizes the likelihood we will differentiate the above equation with respect to $\lambda$ and equate to 0.
 
-$$\frac{d(l(\lambda, x_{1},...,x_{n}))}{d\lambda} = 0$$
+\begin{aligned}
 
+\frac{d(l(\lambda, x_{1},...,x_{n}))}{d\lambda} &= 0 \\
 
- $$=> -n + \frac{\sum_{i=1}^{n}x_{i}}{\lambda} = 0$$
+=> -n + \frac{\sum_{i=1}^{n}x_{i}}{\lambda} &= 0 \\
 
+=> \lambda = \frac{\sum_{i=1}^{n}x_{i}}{n}
 
-
-$$=> \lambda = \frac{\sum_{i=1}^{n}x_{i}}{n}$$
+\end{aligned}
 
 
 Thus the likelihood is maximum when $\lambda$ equals to sample mean.
@@ -104,7 +105,7 @@ There are other R packages that compute optimal changepoint models. Segmentor3Is
  
  This package provides the following function for optimal partitioning usin Poisson loss:
  
- **(i) opart_poisson**: This function computes the optimal changepoint model for a vector of count data and a non-negative real-valued penalty, given the poisson loss (to minimize) / log likelihood (to maximize).
+ **opart_poisson**: This function computes the optimal changepoint model for a vector of count data and a non-negative real-valued penalty, given the poisson loss (to minimize) / log likelihood (to maximize).
  
  *usage: opart_poisson(data.vec, penalty)*
  
@@ -181,4 +182,18 @@ If all the checks were successful then "rate" should be 100 after the loop is ex
 
 ```{r}
 rate
+```
+
+Since, "rate" is 100 at end of the loop it means that all models produced by opart_poisson match with Segmentor3IsBack.
+
+&nbsp;
+
+
+### Runtime vs lambda
+
+In this section we will analyze how the runtime varies with increasing values of lambda for both opart_poisson and Segmentor3IsBack.
+
+
+```{r}
+
 ```
