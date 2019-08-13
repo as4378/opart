@@ -8,12 +8,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-library(opart)
 library(microbenchmark)
 library(data.table)
 library(directlabels)
 library(ggplot2)
-library(changepoint)
 ```
 
 ## Optimal Partitioning
@@ -98,7 +96,7 @@ There are many other R packages that compute optimal changepoint models. Since t
 The 2 popular packages which implement these ideas are:
 
 
-**(i) changepoint**: provides the cpt.mean and other functions which compute the optimal solution to the penalized problem via the PELT algorithm, which is log-linear time complexity.
+**(i) changepoint::cpt.mean**: provides the cpt.mean and other functions which compute the optimal solution to the penalized problem via the PELT algorithm, which is log-linear time complexity.
 
 
 
@@ -162,13 +160,15 @@ iters <- 0
 
 for(profile_id in profile_ids_vec){
   current_data = subset(selected_data, profile.id == profile_id)
+  
   if(requireNamespace("fpop", quietly = TRUE))
       fpop_res <- fpop::Fpop(current_data$logratio, iters + 1)
-  cpt_res <- cpt.mean(data = current_data$logratio, 
+  
+  cpt_res <- changepoint::cpt.mean(data = current_data$logratio, 
                         penalty = "Manual", 
                         method = "PELT", 
                         pen.value=iters + 1)
-  opart_res <- opart_gaussian(current_data$logratio, iters + 1)
+  opart_res <- opart::opart_gaussian(current_data$logratio, iters + 1)
   
   iters <- iters + 1
   
@@ -215,10 +215,10 @@ for(profile_id in profile_ids_vec){
       fpop::Fpop(current_data$logratio, 1)
     },
   "cpt_mean"={
-      cpt.mean(data = current_data$logratio, penalty = "Manual", method = "PELT", pen.value=1)
+      changepoint::cpt.mean(data = current_data$logratio, penalty = "Manual", method = "PELT", pen.value=1)
     },
    "opart_gaussian"={
-        opart_gaussian(current_data$logratio, 1)
+        opart::opart_gaussian(current_data$logratio, 1)
     }, times=5)
   timing_list[[paste(profile_id)]] <- data.table(size, timing)
 }
@@ -269,14 +269,14 @@ selected_data <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1
 for(beta in 1:100){
   timing <- microbenchmark(
     "opart_gaussian"={
-        opart_gaussian(selected_data$logratio, beta)
+        opart::opart_gaussian(selected_data$logratio, beta)
     }, 
     "fpop"={
       if(requireNamespace("fpop", quietly = TRUE))
         fpop::Fpop(selected_data$logratio, beta)
     },
     "cpt_mean"={
-       cpt.mean(data = selected_data$logratio, penalty = "Manual", 
+        changepoint::cpt.mean(data = selected_data$logratio, penalty = "Manual", 
                method = "PELT", pen.value=beta)
     },times=5)
    

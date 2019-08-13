@@ -1,0 +1,184 @@
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Spatial correlation}
+-->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(microbenchmark)
+library(data.table)
+library(directlabels)
+library(ggplot2)
+```
+
+### Optimal Partitioning with Poisson loss
+
+This vignette introduces Poisson loss function in statistics and summarizes important results from Poisson distribution as well as functions available in this package for solving the standard optimal partitioning problem using Poisson loss as cost function.
+
+&nbsp;
+
+### Introduction
+
+In statistics, Poisson regression is a generalized linear model form of regression analysis used to model count data and contingency tables. Poisson regression assumes the response variable Y has a Poisson distribution, and assumes the logarithm of its expected value can be modeled by a linear combination of unknown parameters. A Poisson regression model is sometimes known as a log-linear model, especially when used to model contingency tables.
+
+The formula for the Poisson probability mass function is:
+
+$$ P(x, \lambda) = \frac{{e^{ - \lambda } \lambda ^x }}{{x!}} $$
+
+Where $\lambda$ is the shape parameter which indicates the average number of events in the given time interval and x is the input variable for which the probability is calculated. The values of x are independent and identically(iid) distributed.
+
+&nbsp;
+
+### Maximum Likelihood Estimation
+
+Maximum likelihood estimation (MLE) is an estimation method that allows to use a sample to estimate the parameters of the probability distribution that generated the sample.
+
+For Poisson Distibution the parameter of interest is $\lambda$.
+If we draw a sequence $X_{n}$ of n independent observations from a Poisson Distribution then the probability mass function for each term of the sequence is given by (1).
+Therefore, the probability of observing this sequence $X_{n}$ will be the product of probabilities of each term.
+
+Thus the likelihood function is given as:
+
+$$L(\lambda; x_{1},...,x_{n}) = \prod_{i=1}^{n}\frac{e^{-\lambda}\lambda^{x_{i}}}{{x_{i}!}}$$
+
+
+The log-likelihood function will be:
+
+$$l(\lambda, x_{1},...,x_{n}) =  \sum_{i=1}^{n}[-\lambda - \log(x_{i}!) + x_{i}\log(\lambda)]$$   
+
+To find the $\lambda$ value that maximizes the likelihood we will differentiate the above equation with respect to $\lambda$ and equate to 0.
+
+$$\frac{d(l(\lambda, x_{1},...,x_{n}))}{d\lambda} = 0$$
+
+
+ $$=> -n + \frac{\sum_{i=1}^{n}x_{i}}{\lambda} = 0$$
+
+
+
+$$=> \lambda = \frac{\sum_{i=1}^{n}x_{i}}{n}$$
+
+
+Thus the likelihood is maximum when $\lambda$ equals to sample mean.
+
+&nbsp;
+
+### Poisson Loss Function
+
+
+Poisson loss function is a measure of how the predicted distribution diverges from the expected distribution, the Poisson as loss function is a variant from Poisson Distribution, where the Poisson distribution is widely used for modeling count data. If we draw a sequence of n independent observations from a Poisson distribution then the Poisson Loss function L is defined as the likelihood of observing this sequence for value of $\lambda$ which maximizes this likelihood.
+
+$$
+  L = \max_{\lambda}[ \log\text{Lik}(\lambda)] 
+$$
+
+This is equivalent to finding value of $\lambda$ which minimizes the negative log-likelihood.
+
+$$=> L = \min_{\lambda} [-\log\text{Lik}(\lambda)]= \min_{\lambda} \sum_i \text{PoissonLoss}(\lambda, x_i)
+$$
+
+Thus, we get Poisson Loss function as negative log-likelihood.
+
+
+The negative log-likelihood is given as:
+
+$$L =\min_{\lambda}\sum_{i=1}^{n}[\lambda + \log(x_{i}!) - x_{i}\log(\lambda)]$$
+
+Ignoring the constant terms (not involving $\lambda$) we get our Poisson Loss function as:
+
+$$L =\min_{\lambda}\sum_{i=1}^{n}[\lambda - x_{i}\log(\lambda)]$$
+
+
+
+Where $\lambda$ equals to sample mean as it maximizes the likelihood (equivalent to minimizing the negative likelihood).
+
+
+### Related Work
+
+There are other R packages that compute optimal changepoint models. Segmentor3IsBack package provides Segmentor function which provides several options for loss functions including Posisson, Normal homoscedastic, Negative Binomial and Normal Heteroscedastic.   
+
+
+### Programming with opart
+ 
+ This package provides the following function for optimal partitioning usin Poisson loss:
+ 
+ **(i) opart_poisson**: This function computes the optimal changepoint model for a vector of count data and a non-negative real-valued penalty, given the poisson loss (to minimize) / log likelihood (to maximize).
+ 
+ *usage: opart_poisson(data.vec, penalty)*
+ 
+ *data.vec is the data vector on which optimal partitioning is to be performed.*
+ 
+ *penalty is any finite positive real valued number*
+
+
+The output has following components:
+
+
+* cost.vec is a vector of optimal cost values of the best models from 1 to n_data.
+
+* end.vec is a vector of optimal segment ends
+
+
+The following example shows the usage on a count data generated from a Poisson distribution with 100 elements and lambda = 10. The penalty used for segmentation is 1:
+
+```{r}
+sample_data <- rpois(n = 100, lambda = 10)
+opfit <- opart::opart_poisson(data = sample_data, penalty = 1)
+str(opfit)
+```
+
+&nbsp;
+
+### Model Comparison with Segmentor3IsBack
+
+In this section we will compare the model produced by opart_poisson with Segmentor function on Segmentor3IsBack package as it uses poisson loss for segment cost. We will use a similar procedure as we used for model comparison with fpop and cpt.mean. Since, Segmentor gives models for all possible number of changepoints upto "Kmax" (user specified value) we will first run opart_poisson on a given dataset and then use the length of the "end.vec" as "Kmax" in Segmentor. Then we need to compare if the last row of the segmentor output matches our "end.vec".
+
+
+To illustrate this first we will see the output of Segmentor on a sample data.
+
+
+```{r message=FALSE, warning=FALSE}
+sfit <- Segmentor3IsBack::Segmentor(c(1,2,3,4), Kmax = 4)
+sfit
+```
+
+
+From the above output we can see that in Matrix of breakspoints we get vector of segment ends for all possible number of changepoints till Kmax.
+
+The summary of the above output is:
+
+```{r}
+str(sfit)
+```
+
+
+The matrix of breakpoints is avialable as "breaks". The code below compares the output of opart_poisson for different penalty values on different datasets. We run 100 iterations to generate values from a poisson distribution for different lambda(rate parameter) values and use them as dataset. The dataset size ranges
+
+
+```{r}
+for(rate in 1:100){
+  sample_data <- rpois(n = 10*rate, lambda = rate)
+  sample_data <- sample_data[sample_data != 0]
+  
+  opfit <- opart::opart_poisson(data = sample_data, penalty = rate)
+  op_end = opfit$end.vec
+  
+  sfit <- Segmentor3IsBack::Segmentor(data = sample_data, Kmax = length(op_end) + 1)
+  s_end <- as.numeric(sfit@breaks[length(op_end), ])
+  s_end <- s_end[s_end != 0]
+  
+  if(!isTRUE(all.equal(op_end, s_end))){
+    break
+  }
+}
+
+```
+
+
+If all the checks were successful then "rate" should be 100 after the loop is exited.
+
+```{r}
+rate
+```
