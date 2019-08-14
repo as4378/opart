@@ -69,15 +69,15 @@ Thus the likelihood is maximum when $\lambda$ equals to sample mean.
 ### Poisson Loss Function
 
 
-Poisson loss function is a measure of how the predicted distribution diverges from the expected distribution, the Poisson as loss function is a variant from Poisson Distribution, where the Poisson distribution is widely used for modeling count data. If we draw a sequence of n independent observations from a Poisson distribution then the Poisson Loss function L is defined as the likelihood of observing this sequence for value of $\lambda$ which maximizes this likelihood.
+Poisson loss function is a measure of how the predicted distribution diverges from the expected distribution, the Poisson as loss function is a variant from Poisson Distribution, where the Poisson distribution is widely used for modeling count data. If we draw a sequence of n independent observations from a Poisson distribution then the Poisson Loss function 'P' is defined as the likelihood of observing this sequence for value of $\lambda$ which maximizes this likelihood.
 
 $$
-  L = \max_{\lambda}[ \log\text{Lik}(\lambda)] 
+  P = \max_{\lambda}[ {l}(\lambda, x_1,...,x_n)] 
 $$
 
-This is equivalent to finding value of $\lambda$ which minimizes the negative log-likelihood.
+Where 'l' is the log-likelihood. This is equivalent to finding value of $\lambda$ which minimizes the negative log-likelihood.
 
-$$=> L = \min_{\lambda} [-\log\text{Lik}(\lambda)]= \min_{\lambda} \sum_i \text{PoissonLoss}(\lambda, x_i)
+$$=> P = \min_{\lambda} [-l(\lambda, x_1,...,x_n)]= \min_{\lambda} \sum_i \text{PoissonLoss}(\lambda, x_i)
 $$
 
 Thus, we get Poisson Loss function as negative log-likelihood.
@@ -85,11 +85,11 @@ Thus, we get Poisson Loss function as negative log-likelihood.
 
 The negative log-likelihood is given as:
 
-$$L =\min_{\lambda}\sum_{i=1}^{n}[\lambda + \log(x_{i}!) - x_{i}\log(\lambda)]$$
+$$-l(\lambda, x_1,...,x_n) =\sum_{i=1}^{n}[\lambda + \log(x_{i}!) - x_{i}\log(\lambda)]$$
 
 Ignoring the constant terms (not involving $\lambda$) we get our Poisson Loss function as:
 
-$$L =\min_{\lambda}\sum_{i=1}^{n}[\lambda - x_{i}\log(\lambda)]$$
+$$P =\min_{\lambda}\sum_{i=1}^{n}[\lambda - x_{i}\log(\lambda)]$$
 
 
 
