@@ -2,6 +2,8 @@
 
 [![Foo](https://api.travis-ci.org/as4378/opart.png?branch=master)](https://travis-ci.org/as4378/opart)
 
+[![Coverage Status](https://coveralls.io/repos/github/as4378/opart/badge.svg?branch=C_interface_poisson)](https://coveralls.io/github/as4378/opart?branch=C_interface_poisson)
+
 The Optimal partitioning algorithm (https://arxiv.org/abs/math/0309285) computes the solution to the penalized changepoint problem (best model for a given non-negative real-valued penalty parameter) in quadratic time. It is relatively straightforward to code in C, but there is no R package that provides a reference implementation.
 
 There are many other R packages that compute optimal changepoint models.
