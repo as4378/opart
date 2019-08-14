@@ -153,8 +153,9 @@ str(result)
 Here we compare the model produced by opart for different profile ids in neuroblastoma data set and compare it to the model produced with fpop and cpt.mean. Since all the 3 algorithms use the same cost function we should get same segment ends. In other words the "end.vec" produced by opart should match with the corresponding vector of segment ends in fpop and cpt.mean. We also vary penalty in each iteration.
 
 ```{r message=FALSE, warning=FALSE}
+n.profiles <- 10
 selected_ids <- unique(neuroblastoma$profiles$profile.id)
-profile_ids_vec <- head(selected_ids, 10)
+profile_ids_vec <- head(selected_ids, n.profiles)
 selected_data <- neuroblastoma$profiles
 
 #initializing lists for storing the results of 3 algorithms
@@ -187,7 +188,7 @@ for(profile_id in profile_ids_vec){
 ```
 
 
-In the above code we use 10 profile ids from neuroblastoma dataset and run the 3 algorithms on the logratio values. We also maintain "iters" variable to count how many times we successfully run each iteration. In the "if" condition at the bottom of the loop we check if the segment ends differ and break from the loop. Therefore, if all the segment ends of opart matches with fpop and cpt.mean then "iters" should be 10 after exiting the for loop.
+In the above code we use `r n.profiles` profile ids from neuroblastoma dataset and run the 3 algorithms on the logratio values. We also maintain "iters" variable to count how many times we successfully run each iteration. In the "if" condition at the bottom of the loop we check if the segment ends differ and break from the loop. Therefore, if all the segment ends of opart matches with fpop and cpt.mean then "iters" should be `r n.profiles` after exiting the for loop.
 
 
 Checking the value of "iters" we get:
@@ -198,7 +199,7 @@ iters
 ```
 
 
-Since, we get 10 it means that all the models produced by opart matches with fpop and cpt.mean.
+Since, we get `r n.profiles` it means that all the models produced by opart matches with fpop and cpt.mean.
 
 
 &nbsp;
@@ -227,7 +228,7 @@ for(i in 1:nrow(data.counts)){
     if(requireNamespace("fpop", quietly = TRUE))
       fpop::Fpop(current_data$logratio, 1)
     },
-  "cpt_mean"={
+  "changepoint"={
       changepoint::cpt.mean(data = current_data$logratio, 
                             penalty = "Manual", 
                             method = "PELT", 
@@ -280,28 +281,28 @@ Since, both fpop and cpt.mean uses pruning methods to optimize the runtime which
 
 ### Runtime vs Penalty
 
-In this section we will analyze how the runtime varies with increasing penalty values. For this purpose we will use data from neuroblastoma dataset with profile.id = 1 and chromosome number 1 and compare runtimes of opart_gaussian with fpop and cpt.mean for different penalty values.
+In this section we will analyze how the runtime varies with increasing penalty values. For this purpose we will use data from neuroblastoma dataset with profile.id = 501 and chromosome number 8 (3560 log ratio values) and compare runtimes of opart_gaussian with fpop and cpt.mean for different penalty values.
 
 ```{r}
 timing_list <- list() #for storing the results of microbenchmark
 selected_data <- subset(neuroblastoma$profiles, profile.id=="501" & chromosome=="8")
 
-for(beta in 10^seq(-10:10)){
+for(penalty in 10^seq(-10:10)){
   timing <- microbenchmark(
     "opart"={
-        opart::opart_gaussian(selected_data$logratio, beta)
+        opart::opart_gaussian(selected_data$logratio, penalty)
     }, 
     "fpop"={
       if(requireNamespace("fpop", quietly = TRUE))
-        fpop::Fpop(selected_data$logratio, beta)
+        fpop::Fpop(selected_data$logratio, penalty)
     },
-    "cpt_mean"={
+    "changepoint"={
         changepoint::cpt.mean(data = selected_data$logratio, penalty = "Manual", 
-               method = "PELT", pen.value=beta)
+               method = "PELT", pen.value=penalty)
     },times=5)
    
   
-  timing_list[[paste(beta)]] <- data.table(beta, timing)
+  timing_list[[paste(penalty)]] <- data.table(penalty, timing)
 }
 
 penalty_timing <- do.call(rbind, timing_list)
@@ -318,7 +319,7 @@ penalty_timing$time <- penalty_timing$time * (10^(-9))
 Plotting these results we get:
 
 ```{r message = FALSE, fig.height = 5, fig.width = 10}
-p <- ggplot(data = penalty_timing, aes(x = beta,y = time,
+p <- ggplot(data = penalty_timing, aes(x = penalty,y = time,
                                   col = expr))+
 geom_smooth()+
 scale_x_log10("penalty") + scale_y_log10("time(s)")   
