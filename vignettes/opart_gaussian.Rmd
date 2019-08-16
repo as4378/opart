@@ -72,7 +72,7 @@ $$F(t) = \min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$$
 
 The segmentations themselves can be recovered by first taking the arguments which minimise this equation.
 
-$$\tau^∗_t=\min_{0≤\tau<t}[F(\tau)+C(y_{\tau+1:t})+\beta]$$
+$$\tau^*_t=\min_{0≤\tau<t}[F(\tau)+C(y_{\tau+1:t})+\beta]$$
 
 which give the optimal location of the last changepoint in the segmentation of $y_{1:t}$.
 
