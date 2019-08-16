@@ -24,5 +24,5 @@ given the square loss (to minimize) / gaussian likelihood (to maximize)
 \examples{
 data(neuroblastoma, package="neuroblastoma")
 selectedData <- subset(neuroblastoma$profiles, profile.id=="1" & chromosome=="1")
-opart::opart_gaussian(selectedData$logratio, 1)
+opart::opart_gaussian(data=selectedData$logratio, penalty=1)
 }

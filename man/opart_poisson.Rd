@@ -22,6 +22,6 @@ and a non-negative real-valued penalty,
 given the poisson loss (to minimize) / log likelihood (to maximize)
 }
 \examples{
-opart_poisson(c(1,2,3), 1)
-opart_poisson(c(1,2,3,4), 2)
+sample_data <- rpois(100, 10.5)
+opart::opart_poisson(data=sample_data, penalty=1)
 }

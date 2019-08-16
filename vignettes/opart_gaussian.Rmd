@@ -52,7 +52,7 @@ where 'C' denotes the cost function which is square error loss in this case
 
 &nbsp;
 
-
+$$
 \begin{aligned}
 
 F(t) &= \min_{\tau, k}\sum_{j=0}^{k - 1}[C(y_{\tau_j + 1: \tau_{j+1}}) + C(y_{\tau_k + 1}: t) + \beta] - \beta \\
@@ -63,7 +63,7 @@ F(t) &= \min_{\tau, k}\sum_{j=0}^{k - 1}[C(y_{\tau_j + 1: \tau_{j+1}}) + C(y_{\t
 &= \min_{\tau^*}(F(\tau^*) + C(y_{\tau^*+1:t}) + \beta)
 
 \end{aligned}
-
+$$
 
 &nbsp;
 
