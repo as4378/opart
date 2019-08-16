@@ -72,7 +72,7 @@ $$F(t) = \min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$$
 
 The segmentations themselves can be recovered by first taking the arguments which minimise this equation.
 
-$$\tau^*_t=\min_{0≤\tau<t}[F(\tau)+C(y_{\tau+1:t})+\beta]$$
+$$\tau^{*}_{t}=\min_{0≤\tau<t}[F(\tau)+C(y_{\tau+1:t})+\beta]$$
 
 which give the optimal location of the last changepoint in the segmentation of $y_{1:t}$.
 
@@ -283,7 +283,7 @@ In this section we will analyze how the runtime varies with increasing penalty v
 timing_list <- list() #for storing the results of microbenchmark
 selected_data <- subset(neuroblastoma$profiles, profile.id=="501" & chromosome=="8")
 
-for(penalty in 10^seq(-10:10)){
+for(penalty in 10^seq(-5:5)){
   timing <- microbenchmark(
     "opart"={
         opart::opart_gaussian(selected_data$logratio, penalty)
