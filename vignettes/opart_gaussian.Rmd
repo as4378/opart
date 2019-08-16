@@ -72,7 +72,9 @@ $$F(t) = \min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$$
 
 The segmentations themselves can be recovered by first taking the arguments which minimise this equation.
 
-$$\tau^{*}_{t}=\min_{0≤\tau<t}[F(\tau)+C(y_{\tau+1:t})+\beta]$$
+\[
+  \tau^{*}_{t}=\min_{0≤\tau<t}[F(\tau)+C(y_{\tau+1:t})+\beta]
+\]
 
 which give the optimal location of the last changepoint in the segmentation of $y_{1:t}$.
 
@@ -80,7 +82,9 @@ which give the optimal location of the last changepoint in the segmentation of $
 
 If we denote the vector of ordered changepoints in the optimal segmentation of $y_{1:t}$ by cp(t), with $cp(0)=\phi$ , then the optimal changepoints up to a time t can be calculated recursively.
 
-$$cp(t)=(cp(\tau^∗_t),\tau^∗_t)$$
+\[
+  cp(t)=(cp(\tau^{*}_{t}),\tau^{*}_{t})
+\]
 
 &nbsp;
 
