@@ -53,17 +53,12 @@ where 'C' denotes the cost function which is square error loss in this case
 &nbsp;
 
 $$
-\begin{aligned}
-
-F(t) &= \min_{\tau, k}\sum_{j=0}^{k - 1}[C(y_{\tau_j + 1: \tau_{j+1}}) + C(y_{\tau_k + 1}: t) + \beta] - \beta \\
+F(t) = \min_{\tau, k}\sum_{j=0}^{k - 1}[C(y_{\tau_j + 1: \tau_{j+1}}) + C(y_{\tau_k + 1}: t) + \beta] - \beta $$
 
 
-&= \min_{\tau^{*}}(\min_{\tau, k^{'}}\sum_{j=0}^{k^{'}}[C(y_{\tau_j + 1: \tau_{j+1}}) + \beta] - \beta + C(y_{\tau^*+1:t}) + \beta) \\
+$$=>F(t)= \min_{\tau^{*}}(\min_{\tau, k^{'}}\sum_{j=0}^{k^{'}}[C(y_{\tau_j + 1: \tau_{j+1}}) + \beta] - \beta + C(y_{\tau^*+1:t}) + \beta) $$
 
-&= \min_{\tau^*}(F(\tau^*) + C(y_{\tau^*+1:t}) + \beta)
-
-\end{aligned}
-$$
+$$=>F(t)= \min_{\tau^*}(F(\tau^*) + C(y_{\tau^*+1:t}) + \beta)$$
 
 &nbsp;
 
@@ -77,7 +72,7 @@ $$F(t) = \min_{0 \le \tau < t}[F(t) + C(y_{\tau+1:t}) + \beta]$$
 
 The segmentations themselves can be recovered by first taking the arguments which minimise this equation.
 
-$$\tau^∗_t=\min_{0≤τ<t}[F(τ)+C(y_{τ+1:t})+\beta]$$
+$$\tau^∗_t=\min_{0≤\tau<t}[F(\tau)+C(y_{\tau+1:t})+\beta]$$
 
 which give the optimal location of the last changepoint in the segmentation of $y_{1:t}$.
 

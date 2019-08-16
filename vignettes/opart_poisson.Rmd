@@ -51,17 +51,11 @@ $$l(\lambda, x_{1},...,x_{n}) =  \sum_{i=1}^{n}[-\lambda - \log(x_{i}!) + x_{i}\
 
 To find the $\lambda$ value that maximizes the likelihood we will differentiate the above equation with respect to $\lambda$ and equate to 0.
 
-$$
-\begin{aligned}
+$$\frac{d(l(\lambda, x_{1},...,x_{n}))}{d\lambda} = 0 $$
 
-\frac{d(l(\lambda, x_{1},...,x_{n}))}{d\lambda} &= 0 \\
+$$=>-n + \frac{\sum_{i=1}^{n}x_{i}}{\lambda} = 0 $$
 
-=> -n + \frac{\sum_{i=1}^{n}x_{i}}{\lambda} &= 0 \\
-
-=> \lambda = \frac{\sum_{i=1}^{n}x_{i}}{n}
-
-\end{aligned}
-$$
+$$=>\lambda = \frac{\sum_{i=1}^{n}x_{i}}{n}$$
 
 Thus the likelihood is maximum when $\lambda$ equals to sample mean.
 
