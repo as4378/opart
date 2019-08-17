@@ -31,6 +31,13 @@ double SampleMean(int initial, int final, double* sums){
 double GetPoissonLoss(int initial, int final, double* sums){
   int n = final - initial + 1;
   double lambda = SampleMean(initial, final, sums);
+
+  //If lambda is 0 then sum = 0 and log(0) is undefined
+  //therefore, cost should be 0
+  if(lambda == 0){
+    return 0;
+  }
+
   double sum = n * lambda;
 
   double loss = (n * lambda) - (log(lambda) * sum);
