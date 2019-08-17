@@ -52,9 +52,9 @@ void FindOptimalPartitions(const double* data_points, double* sums, double* dp,
   int i, s, t;
 
   //temporary variables used in recursive function
-  double f_tau;
-  double min;
-  int pos;
+  double f_tau = 0;
+  double min = 0;
+  int pos = -1;
 
 
   //initialize the positions with -2 in the positions vector as initially no data-point is segment end
