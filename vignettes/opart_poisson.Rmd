@@ -1,6 +1,7 @@
 <!--
-%\VignetteEngine{knitr::knitr}
+%\VignetteEngine{knitr::rmarkdown}
 %\VignetteIndexEntry{opart_poisson}
+%\usepackage[utf8]{inputenc}
 -->
 
 ```{r setup, include = FALSE}
