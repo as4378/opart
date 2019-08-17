@@ -258,7 +258,7 @@ labels <- c("1 second", "1 minute", "1 hour"))
 
 p <- ggplot(data = timing.dt, aes(x = (size),y = (time),
                                   col = expr))+
-
+geom_point()+
 geom_smooth()+
   
 geom_hline(aes(yintercept=(seconds)),
@@ -286,25 +286,29 @@ In this section we will analyze how the runtime varies with increasing penalty v
 ```{r}
 timing_list <- list() #for storing the results of microbenchmark
 selected_data <- subset(neuroblastoma$profiles, profile.id=="501" & chromosome=="8")
-
-for(penalty in 10^seq(-5:5)){
+opfit <- c()
+fpfit <- c()
+cpfit <- c()
+for(penalty in 10^(-5:5)){
   timing <- microbenchmark(
     "opart"={
-        opart::opart_gaussian(selected_data$logratio, penalty)
+        opfit <- opart::opart_gaussian(selected_data$logratio, penalty)
     }, 
     "fpop"={
       if(requireNamespace("fpop", quietly = TRUE))
-        fpop::Fpop(selected_data$logratio, penalty)
+        fpfit <- fpop::Fpop(selected_data$logratio, penalty)
     },
     "changepoint"={
-        changepoint::cpt.mean(data = selected_data$logratio, penalty = "Manual", 
+        cpfit <- changepoint::cpt.mean(data = selected_data$logratio, penalty = "Manual", 
                method = "PELT", pen.value=penalty)
     },times=5)
    
-  
+  timing$cpts <- 1:nrow(timing)
+  timing[timing$expr=="opart",]$cpts <- length(opfit$end.vec)
+  timing[timing$expr=="fpop",]$cpts <- length(fpfit$t.est)
+  timing[timing$expr=="changepoint",]$cpts <- length(cpfit@cpts)
   timing_list[[paste(penalty)]] <- data.table(penalty, timing)
 }
-
 penalty_timing <- do.call(rbind, timing_list)
 ```
 
@@ -320,10 +324,13 @@ Plotting these results we get:
 
 ```{r message = FALSE, fig.height = 5, fig.width = 10}
 p <- ggplot(data = penalty_timing, aes(x = penalty,y = time,
-                                  col = expr))+
-
+                                  col = expr, label=cpts))+
+geom_point()+
 geom_smooth()+
-scale_x_log10("penalty") + scale_y_log10("time(s)")   
-
-direct.label(p, "angled.boxes")
+geom_label()+
+scale_x_log10("penalty") + scale_y_log10("time(s)")+ 
+  scale_colour_discrete(name  ="Package",
+                        breaks=c("opart", "changepoint", "fpop"),
+                        labels=c("opart", "changepoint", "fpop"))
+p
 ```
