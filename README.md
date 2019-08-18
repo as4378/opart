@@ -40,7 +40,7 @@ sample_data <- rnorm(100, mean=50)
 opart::opart_gaussian(data=sample_data, penalty=1)
 ```
 
-Complete documentation including results with neuroblastoma dataset and model and runtime comparison with other algorithms(fpop and cpt.mean) can be accessed by installing vignettes.
+Complete documentation including results with neuroblastoma dataset in package neuroblastoma and model and runtime comparison with other algorithms(fpop and cpt.mean) is described in detail in vignettes.
 
 
 
@@ -65,7 +65,7 @@ All the vignettes can be accessed in R envirnment after package installation. Us
 devtools::install_github("as4378/opart", build_opts = c("--no-resave-data"))
 ```
 
-A quick reference to all vignettes in browser readable format can be found [here](www.google.com)
+A quick reference to all vignettes in browser readable format can be found [here](https://drive.google.com/open?id=1VGt_hz4njfTc5tlyRfAPEgijBzbYSUKV)
 
 
 ## Future Work
