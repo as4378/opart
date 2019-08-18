@@ -28,4 +28,61 @@ Currently there are no R packages available that provide a reference implementat
 This project provides an efficient C++ reference implementation to the standard optimal partitioning algorithm in an R package (opart) using square error loss function and poisson loss. Its simplicity makes it easy to modify (which is not true of other algorithms such as FPOP), which will be useful when developing other changepoint models/algorithms.
 
 
+## Features
+
+This package provides 2 functions:
+
+(i) **opart_gaussian**: This function computes the optimal changepoint model for a vector of real-valued data and a non-negative real-valued penalty, given the square loss (to minimize) / gaussian likelihood (to maximize).
+
+```R
+library(opart)
+sample_data <- rnorm(100, mean=50)
+opart::opart_gaussian(data=sample_data, penalty=1)
+```
+
+Complete documentation including results with neuroblastoma dataset and model and runtime comparison with other algorithms(fpop and cpt.mean) can be accessed by installing vignettes.
+
+
+
+(ii) **opart_poisson**: This function computes the optimal changepoint model for a vector of count data and a non-negative real-valued penalty, given the poisson loss (to minimize) / log likelihood (to maximize).
+
+
+```R
+library(opart)
+sample_data <- rpois(100, 10.5)
+opart::opart_poisson(data=sample_data, penalty=1)
+```
+
+The vignettes describe in detail about poisson loss and model comparison with Segmentor3IsBack which provides several options for loss functions including poisson loss.
+
+
+
+## Documentation
+
+All the vignettes can be accessed in R envirnment after package installation. Use build_opts argument as follows with install_github to install vignettes as by default manuals are not installed. 
+
+```R
+devtools::install_github("as4378/opart", build_opts = c("--no-resave-data"))
+```
+
+A quick reference to all vignettes in browser readable format can be found [here](www.google.com)
+
+
+## Future Work
+
+In future we would like to extend this package by supporting different loss functions and move this to CRAN so that it is available to wide community of R users. If possible, extend this further to provide a generic option for supporting user specified loss function as an input argument.
+
+## Acknowledgements
+
+* The Google Summer of Code team for funding and motivating open source development
+
+* My mentors Guillem Rigaill, Rebecca Killick and Toby Hocking
+
+* Members of R Project for Statistical Computing community
+
+* A special thanks to [Toby Hocking](https://github.com/tdhock) for his support and insights throughout the entire GSoC. His experience working with R packages helped in efficient implementation of this package and making it a reality
+
+## Link to commits
+
+All the commits made throughout the entire GSoC program can be accessed by this [link](https://github.com/as4378/opart/commits/master)
 
