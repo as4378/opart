@@ -274,7 +274,7 @@ scale_x_log10("size of data vector") + scale_y_log10("time(s)")
 direct.label(gg_runtime, "angled.boxes")
 ```
 
-Since, both fpop and cpt.mean uses pruning methods to optimize the runtime which on average takes O(n log n) time complexity we can see that both these algorithms take less time compared to opart_gaussian which is always quadratic in time complexity.
+Since, both fpop and cpt.mean uses pruning methods to optimize the runtime which on average takes O(n log n) time complexity we can see that for large datasets both these algorithms take less time compared to opart_gaussian which is always quadratic in time complexity.
 
 
 &nbsp;
