@@ -256,7 +256,7 @@ lab.df <- data.frame(
 seconds <- c(1,60,3600),
 labels <- c("1 second", "1 minute", "1 hour"))
 
-p <- ggplot(data = timing.dt, aes(x = (size),y = (time),
+gg_runtime <- ggplot(data = timing.dt, aes(x = (size),y = (time),
                                   col = expr))+
 geom_point()+
 geom_smooth()+
@@ -271,10 +271,10 @@ geom_text(aes(100, (seconds), label=labels),
             vjust=-0.5)+
 scale_x_log10("size of data vector") + scale_y_log10("time(s)") 
 
-direct.label(p, "angled.boxes")
+direct.label(gg_runtime, "angled.boxes")
 ```
 
-Since, both fpop and cpt.mean uses pruning methods to optimize the runtime which is O(n log n) in complexity we can see that both these algorithms take less time compared to opart_gaussian which is quadratic in time complexity.
+Since, both fpop and cpt.mean uses pruning methods to optimize the runtime which on average takes O(n log n) time complexity we can see that both these algorithms take less time compared to opart_gaussian which is always quadratic in time complexity.
 
 
 &nbsp;
@@ -289,7 +289,7 @@ selected_data <- subset(neuroblastoma$profiles, profile.id=="501" & chromosome==
 opfit <- c()
 fpfit <- c()
 cpfit <- c()
-for(penalty in 10^(-5:5)){
+for(penalty in 10^(-5:10)){
   timing <- microbenchmark(
     "opart"={
         opfit <- opart::opart_gaussian(selected_data$logratio, penalty)
@@ -323,14 +323,17 @@ penalty_timing$time <- penalty_timing$time * (10^(-9))
 Plotting these results we get:
 
 ```{r message = FALSE, fig.height = 5, fig.width = 10}
-p <- ggplot(data = penalty_timing, aes(x = penalty,y = time,
+gg_penalty <- ggplot(data = penalty_timing, aes(x = penalty,y = time,
                                   col = expr, label=cpts))+
 geom_point()+
 geom_smooth()+
 geom_label()+
-scale_x_log10("penalty") + scale_y_log10("time(s)")+ 
+scale_x_log10("penalty") + scale_y_log10("time(s)")+
   scale_colour_discrete(name  ="Package",
-                        breaks=c("opart", "changepoint", "fpop"),
-                        labels=c("opart", "changepoint", "fpop"))
-p
+                        labels=c("opart", "fpop", "changepoint"))
+gg_penalty
 ```
+
+In the above plot we run all the 3 algorithms on the mentioned dataset and we also label the changepoints detected for different penalty values for each algorithm. We can see as the penalty value increases after a certain threshold we start getting constant model(1 changepoint). 
+
+For opart the runtime is always quadratic irrespective of the penalty value so we don't see much variation in its plot. Whereas, cpt.mean and fpop the runtime also depends on penalty so we see some variation although for very high penalty values when we start getting only 1 changepoint we can see that the runtime doesn't vary much.
