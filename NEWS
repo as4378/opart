@@ -1,9 +1,33 @@
 
-TODOs
+# opart 2019.1.0
 
-2019.06.11
 
-write test cases for 100% coverage (currently 83%)
-add more sections in vignette
-merge changes from C_interface to unit_tests and documentation
-remove function declarations from opart_gaussian.c
+## Major features
+
+* A C interface to R implementing standard optimal partitioning algorithm using gaussian loss and poisson loss as loss functions
+
+* Vignettes explaining in detail the process of optimal partitioning using different loss functions.
+
+* Comparison with existing R packages (fpop, changepoint, Segmentor3IsBack) in terms of runtime and model equivalency with real time datasets like neuroblastoma
+
+## Dependencies
+
+* R version >= 3.5.0
+* knitr
+* rmarkdown
+* testthat
+* dplyr
+* ggplot2
+* directlabels
+* data.table
+* covr
+* neuroblastoma
+* microbenchmark
+* changepoint
+* Segmentor3IsBack
+* fpop
+
+
+## License
+
+This version is released under GPL-3 license.
