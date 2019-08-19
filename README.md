@@ -65,7 +65,7 @@ All the vignettes can be accessed in R envirnment after package installation. Us
 devtools::install_github("as4378/opart", build_opts = c("--no-resave-data"))
 ```
 
-A quick reference to all vignettes in browser readable format can be found [here](https://drive.google.com/open?id=1VGt_hz4njfTc5tlyRfAPEgijBzbYSUKV)
+A quick reference to all vignettes in pdf format can be found [here](https://drive.google.com/open?id=1N9OSTHAGaH_ZrOeRNcNc5eXFEDkJWbjY)
 
 
 ## Future Work
