@@ -5,7 +5,7 @@ Version: 2019.1.0
 Author: Anuraag Srivastava
 Maintainer: Anuraag Srivastava <srivastava.anurag.90@gmail.com>
 Description: A reference implementation of optimal partitioning 
-    algorithm in C using square-error loss function as described in
+    algorithm in C using square-error loss and poisson loss functions as described in
     <https://link.springer.com/article/10.1007/s11222-016-9636-3>
     by Toby Hocking, Guillem Rigaill, Paul Fearnhead. It scales
     quadratically with number of data points in terms of time-
