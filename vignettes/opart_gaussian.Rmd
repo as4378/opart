@@ -281,25 +281,25 @@ Since, both fpop and cpt.mean uses pruning methods to optimize the runtime which
 
 ### Runtime vs Penalty
 
-In this section we will analyze how the runtime varies with increasing penalty values. For this purpose we will use data from neuroblastoma dataset with profile.id = 501 and chromosome number 8 (3560 log ratio values) and compare runtimes of opart_gaussian with fpop and cpt.mean for different penalty values.
+In this section we will analyze how the runtime varies with increasing penalty values. For this purpose we will sample a large dataset(10000 data values) from a normal distribution with mean 100 and compare runtimes of opart_gaussian with fpop and cpt.mean for different penalty values.
 
 ```{r}
 timing_list <- list() #for storing the results of microbenchmark
-selected_data <- subset(neuroblastoma$profiles, profile.id=="501" & chromosome=="8")
+selected_data <- rnorm(10000, mean=100)
 opfit <- c()
 fpfit <- c()
 cpfit <- c()
-for(penalty in 10^(-5:10)){
+for(penalty in 10^(-10:10)){
   timing <- microbenchmark(
     "opart"={
-        opfit <- opart::opart_gaussian(selected_data$logratio, penalty)
+        opfit <- opart::opart_gaussian(selected_data, penalty)
     }, 
     "fpop"={
       if(requireNamespace("fpop", quietly = TRUE))
-        fpfit <- fpop::Fpop(selected_data$logratio, penalty)
+        fpfit <- fpop::Fpop(selected_data, penalty)
     },
     "changepoint"={
-        cpfit <- changepoint::cpt.mean(data = selected_data$logratio, penalty = "Manual", 
+        cpfit <- changepoint::cpt.mean(data = selected_data, penalty = "Manual", 
                method = "PELT", pen.value=penalty)
     },times=5)
    
