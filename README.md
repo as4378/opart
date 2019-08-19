@@ -40,6 +40,8 @@ sample_data <- rnorm(100, mean=50)
 opart::opart_gaussian(data=sample_data, penalty=1)
 ```
 
+The execution returns a cost vector (cost.vec) which contains the optimal cost values for partitioning the data and end vector (end.vec) which contains the optimal segment ends.
+
 Complete documentation including results with neuroblastoma dataset in package neuroblastoma and model and runtime comparison with other algorithms(fpop and cpt.mean) is described in detail in vignettes.
 
 
@@ -52,6 +54,8 @@ library(opart)
 sample_data <- rpois(100, 10.5)
 opart::opart_poisson(data=sample_data, penalty=1)
 ```
+
+The execution returns a cost vector (cost.vec) which contains the optimal cost values for partitioning the data and end vector (end.vec) which contains the optimal segment ends.
 
 The vignettes describe in detail about poisson loss and model comparison with Segmentor3IsBack which provides several options for loss functions including poisson loss.
 
