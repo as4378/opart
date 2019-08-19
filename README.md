@@ -25,7 +25,7 @@ A quadratic time algorithm described in https://link.springer.com/article/10.100
 Currently there are no R packages available that provide a reference implementation to this algorithm.
 
 
-This project provides an efficient C++ reference implementation to the standard optimal partitioning algorithm in an R package (opart) using square error loss function and poisson loss. Its simplicity makes it easy to modify (which is not true of other algorithms such as FPOP), which will be useful when developing other changepoint models/algorithms.
+This project provides an efficient C reference implementation to the standard optimal partitioning algorithm in an R package (opart) using square error loss function and poisson loss. Its simplicity makes it easy to modify (which is not true of other algorithms such as FPOP), which will be useful when developing other changepoint models/algorithms.
 
 
 ## Features
