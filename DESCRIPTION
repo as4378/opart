@@ -29,5 +29,6 @@ Suggests:
     neuroblastoma,
     microbenchmark,
     changepoint,
-    Segmentor3IsBack
+    Segmentor3IsBack,
+    fpop
 VignetteBuilder: knitr
