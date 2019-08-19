@@ -1,6 +1,7 @@
 <!--
-%\VignetteEngine{knitr::knitr}
+%\VignetteEngine{knitr::rmarkdown}
 %\VignetteIndexEntry{opart_poisson}
+%\usepackage[utf8]{inputenc}
 -->
 
 ```{r setup, include = FALSE}
@@ -262,4 +263,4 @@ chromStart, chromMean, xend=chromEnd, yend=chromMean, color=model),
 data=data.frame(sfit.segments, model="Segmentor3IsBack"))
 ```
 
-In the above example we take "Kmax" as length of end vector from opart_poisson as Segmentor provides models with all possible change points till Kmax. Since, we want to compare it with the model produced by opart_poisson we take the model containing same number of changepoints from Segmentor as opart_poisson.
+In the above example we take "Kmax" as length of end vector from opart_poisson as Segmentor provides models with all possible change points till Kmax. Since, we want to compare it with the model produced by opart_poisson we take the model containing same number of changepoints from Segmentor as opart_poisson. As we can see from the plots that both opart_poisson and Segmentor detects the same location of changepoints and segment means.

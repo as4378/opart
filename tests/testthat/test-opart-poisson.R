@@ -77,3 +77,8 @@ test_that("cost vector should match manual calculation", {
 })
 
 
+#test for case where segment contains all 0s
+res <- opart_poisson(c(0,0,0,0,1), 1)
+test_that("end.vec should contain 2 segments", {
+  expect_equal(res$end.vec, c(4,5))
+})

@@ -31,6 +31,13 @@ double SampleMean(int initial, int final, double* sums){
 double GetPoissonLoss(int initial, int final, double* sums){
   int n = final - initial + 1;
   double lambda = SampleMean(initial, final, sums);
+
+  //If lambda is 0 then sum = 0 and log(0) is undefined
+  //therefore, cost should be 0
+  if(lambda == 0){
+    return 0;
+  }
+
   double sum = n * lambda;
 
   double loss = (n * lambda) - (log(lambda) * sum);
@@ -52,9 +59,9 @@ void FindOptimalPartitions(const double* data_points, double* sums, double* dp,
   int i, s, t;
 
   //temporary variables used in recursive function
-  double f_tau;
-  double min;
-  int pos;
+  double f_tau = 0;
+  double min = 0;
+  int pos = -1;
 
 
   //initialize the positions with -2 in the positions vector as initially no data-point is segment end
