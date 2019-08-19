@@ -79,9 +79,9 @@ test_that("all the data points in one segment", {
   expect_equal(res$end.vec, nrows)
 })
 
-#test for zero penalty
-res <- opart_gaussian(selProfile$logratio, 0)
+#test for small penalty
+res <- opart_gaussian(selProfile$logratio, 1)
 test_that("all the data points are segment ends", {
-  expect_equal(nrow(as.data.frame(res$end.vec)), nrows - 2)
+  expect_equal(length(res$end.vec), 4)
 })
 
