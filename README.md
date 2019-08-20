@@ -12,9 +12,17 @@ The package can be installed from github as follows:
 
 ```R
 install.packages("devtools") #if not already installed
-library(devtools)
 
 devtools::install_github("as4378/opart")
+```
+
+Alternatively, you can use remotes which is a lighter-weight package that has the install_github functionality that devtools provides, but not all the “development” parts of devtools.
+
+
+```R
+install.packages("remotes") #if not already installed
+
+remotes::install_github("as4378/opart")
 ```
 
 ## Introduction
