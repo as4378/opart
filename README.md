@@ -25,6 +25,8 @@ install.packages("remotes") #if not already installed
 remotes::install_github("as4378/opart")
 ```
 
+This package requires R version (>= 3.5.0).
+
 ## Introduction
 
 There are several applications where we need to work with ordered data (e.g. Time-series). This includes financial data, climate data, radio signals, genome data in bioinformatics etc. Often it is of interest to find patterns or structure in this data and to detect abrupt changes in structure to model the data effectively. There are a class of dynamic programming algorithms that can solve the optimal partitioning problem and find optimal segments given a statistical criteria.
