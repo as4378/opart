@@ -25,7 +25,7 @@ install.packages("remotes") #if not already installed
 remotes::install_github("as4378/opart")
 ```
 
-This package requires R version (>= 3.5.0).
+This package requires R version (>= 3.5.0). Also, make sure that you have a stable version of Rtools installed.
 
 ## Introduction
 
