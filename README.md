@@ -1,5 +1,7 @@
 # opart
 
+**Update:** Package opart is now available on CRAN
+
 [![Foo](https://api.travis-ci.org/as4378/opart.png?branch=master)](https://travis-ci.org/as4378/opart) [![Coverage Status](https://coveralls.io/repos/github/as4378/opart/badge.svg)](https://coveralls.io/github/as4378/opart)
 
 This repository is for Google Summer of Code 2019 project [Optimal partitioning algorithm for changepoint detection](https://github.com/rstats-gsoc/gsoc2019/wiki/Optimal-partitioning-algorithm-for-changepoint-detection) under organization [R project for statistical computing](https://summerofcode.withgoogle.com/organizations/4934391420157952/).
